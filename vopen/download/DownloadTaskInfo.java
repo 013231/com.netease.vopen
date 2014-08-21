@@ -15,7 +15,4 @@ public class DownloadTaskInfo {
     public File mSaveFile;
     public int mCurThread;
     public int mID;
-    
-    //downloadListener
-    public DownloadListener mDownloadListener;
 }

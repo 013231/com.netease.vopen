@@ -5,7 +5,7 @@ package vopen.db;
  * @date 2012-01-08
  *************************************************************/
 import java.util.ArrayList;
-
+import java.util.List;
 
 import vopen.db.VopenContentProvider.DownloadManagerHelper;
 import vopen.db.VopenContentProvider.UserAccountHelper;
@@ -25,7 +25,6 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.netease.vopen.pal.Constants;
-
 import common.util.StringUtil;
 import common.util.Util;
 
@@ -381,6 +380,55 @@ public class DBApi {
 			}
 		    return context.getContentResolver().insert(VopenMyCollectHelper.getUri(), initialValues);
 		}
+		
+		/**
+		 * 批量插入收藏数据 
+		 * @param context
+		 * @param collectInfos
+		 */
+		public static void bulkInsertCollect(Context context,
+				List<CollectInfo> collectInfos) {
+			if (null == collectInfos || collectInfos.size() == 0) {
+				return;
+			}
+			List<ContentValues> initialValueList = new ArrayList<ContentValues>();
+			for (CollectInfo collectInfo : collectInfos) {
+				ContentValues initialValues = new ContentValues();
+				if (null != collectInfo.mCourse_id) {
+					initialValues.put(VopenMyCollectHelper.COURSE_PLID,
+							collectInfo.mCourse_id);
+				}
+				if (null != collectInfo.mCourse_title) {
+					initialValues.put(VopenMyCollectHelper.COURSE_TITLE,
+							collectInfo.mCourse_title);
+				}
+				if (null != collectInfo.mCourse_img) {
+					initialValues.put(VopenMyCollectHelper.COURSE_IMG,
+							collectInfo.mCourse_img);
+				}
+				initialValues.put(VopenMyCollectHelper.COURSE_PLAYCOUNT,
+						collectInfo.mCourse_playcount);
+				initialValues.put(VopenMyCollectHelper.COURSE_TRANSLATECOUNT,
+						collectInfo.mCourse_translatecount);
+				initialValues.put(VopenMyCollectHelper.COURSE_NEW_TRANSLATE_NUM,
+						collectInfo.mCourse_new_translate_num);
+				if (null != collectInfo.mUser_id) {
+					initialValues.put(VopenMyCollectHelper.USER_ID,
+							collectInfo.mUser_id);
+				}
+				initialValues.put(VopenMyCollectHelper.IS_SYNC,
+						collectInfo.mIs_synchronized ? 1 : 0);
+				if (null != collectInfo.mData_time) {
+					initialValues.put(VopenMyCollectHelper.DATA_TIME,
+							collectInfo.mData_time);
+				}
+				initialValueList.add(initialValues);
+			}
+			context.getContentResolver().bulkInsert(VopenMyCollectHelper.getUri(),
+					initialValueList.toArray(new ContentValues[0]));
+		}
+
+		
 		/**
 		 * 更新公开课已经登录的收藏表中某一课程id所对应的数据
 		 * @param context
@@ -1257,14 +1305,15 @@ public class DBApi {
 		}
 		 public enum EDownloadStatus
 		  {
-			DOWNLOAD_FAILED_VIDEO_ERROR(8),//视频错误
-			DOWNLOAD_FAILED_NOT_ENOUGH_SDCARD_VOLUME(7),//SD卡不足
-	  		DOWNLOAD_FAILED(4),//下载失败，网络错误
 	  		DOWNLOAD_DONE(1),//下载完成
-	  		DOWNLOAD_DOING(3),//正在下载
-	  		DOWNLOAD_PAUSE(6),//暂停
 	  		DOWNLOAD_WAITTING(2),//等待
-	  		DOWNLOAD_NO(5);//未下载
+	  		DOWNLOAD_DOING(3),//正在下载
+	  		DOWNLOAD_FAILED(4),//网络错误
+	  		DOWNLOAD_NO(5),//未下载
+	  		DOWNLOAD_PAUSE(6),//暂停
+	  		DOWNLOAD_FAILED_NOT_ENOUGH_SDCARD_VOLUME(7),//SD卡不足
+	  		DOWNLOAD_FAILED_VIDEO_ERROR(8);//视频错误
+	  		
 	  		private final int value;
 
 			private EDownloadStatus(int value)
@@ -1275,6 +1324,15 @@ public class DBApi {
 		    public int value()
 		    {
 		        return this.value;
+		    }
+		    
+		    public static EDownloadStatus fromValue(int value){
+		    	for (EDownloadStatus status : EDownloadStatus.values()){
+		    		if (status.value == value){
+		    			return status;
+		    		}
+		    	}
+		    	return null;
 		    }
 		 
 		  }
@@ -1825,8 +1883,7 @@ public class DBApi {
 			public static Cursor queryDownloadedAllCourse(Context context,String[] projection){
 				String selection = DownloadManagerHelper.DOWNLOAD_STATUS + " =? ";
 				String[] selectionArgs = new String[] {String.valueOf(EDownloadStatus.DOWNLOAD_DONE.value)};
-				String order = DownloadManagerHelper.COURSE_PLID + " DESC," + DownloadManagerHelper.COURSE_PNUMBER + " DESC";
-				
+				String order = DownloadManagerHelper.Download_ID + " DESC";
 				Cursor c = context.getContentResolver().query(DownloadManagerHelper.getUri(),
 						  projection,
 						  selection,
@@ -1842,7 +1899,7 @@ public class DBApi {
 			public static Cursor queryDownloadingAllCourse(Context context,String[] projection){
 				String selection = DownloadManagerHelper.DOWNLOAD_STATUS + " <>?";
 				String[] selectionArgs = new String[] {String.valueOf(EDownloadStatus.DOWNLOAD_DONE.value)};
-				String order = DownloadManagerHelper.COURSE_PLID + " DESC," + DownloadManagerHelper.COURSE_PNUMBER + " DESC";
+				String order = DownloadManagerHelper.Download_ID + " ASC";
 				
 				Cursor c = context.getContentResolver().query(DownloadManagerHelper.getUri(),
 						  projection,
@@ -1864,8 +1921,7 @@ public class DBApi {
 				String[] selectionArgs = new String[] { String
 						.valueOf(EDownloadStatus.DOWNLOAD_WAITTING.value) };
 				String order = DownloadManagerHelper.PRIORITY + " DESC,"
-						+ DownloadManagerHelper.COURSE_PLID + " DESC,"
-						+ DownloadManagerHelper.COURSE_PNUMBER + " ASC"
+						+ DownloadManagerHelper.Download_ID + " ASC"
 						+ " LIMIT 1";
 				Cursor c = context.getContentResolver().query(DownloadManagerHelper.getUri(),
 						  projection,

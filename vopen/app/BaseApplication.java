@@ -6,15 +6,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
-
-import vopen.db.DBApi.DownLoadInfo;
 import vopen.db.DBApi.EDownloadStatus;
 import vopen.download.DownloadListener;
-
 import android.app.Application;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.util.Log;
 
 public class BaseApplication extends Application  implements DownloadListener{
 	private static BaseApplication sBaseApp;
@@ -91,13 +87,13 @@ public class BaseApplication extends Application  implements DownloadListener{
 	/**
 	 * 当前下载文件的总大小
 	 */
-	private static long mTotalSize;
+	private static AtomicLong mTotalSize = new AtomicLong();
 	public synchronized static void initTotalSize(long size) {
-		mTotalSize = size;
+		mTotalSize.set(size);
 	}
 	
 	public static int getTotalSize() {
-		return (int)mTotalSize;
+		return (int)mTotalSize.get();
 	}
 	
 	/**
@@ -106,8 +102,8 @@ public class BaseApplication extends Application  implements DownloadListener{
 	private static AtomicLong mDownloadCurrrentSize = new AtomicLong();
 	public  static void setDownCurSize(long offset) {
 		mDownloadCurrrentSize.set(mDownloadCurrrentSize.get() + offset);
-		if(mDownloadCurrrentSize.get() >= mTotalSize){
-			mDownloadCurrrentSize.set(mTotalSize);
+		if(mDownloadCurrrentSize.get() >= mTotalSize.get()){
+			mDownloadCurrrentSize.set(mTotalSize.get());
 		}
 		//Logger.e("mDownloadCurrrentSize "+mDownloadCurrrentSize);
 	}
@@ -140,7 +136,7 @@ public class BaseApplication extends Application  implements DownloadListener{
 	
 
 	protected List<DownloadListener> mListDownloadListener;
-	public void addListener(DownloadListener listener){
+	public void addDownloadListener(DownloadListener listener){
 		synchronized (mListDownloadListener) {
 			if(mListDownloadListener != null){
 				mListDownloadListener.add(listener);
@@ -151,54 +147,39 @@ public class BaseApplication extends Application  implements DownloadListener{
 		}
 		
 	}
-	public void rmListener(DownloadListener listener){
+	public void removeDownloadListener(DownloadListener listener){
 		synchronized (mListDownloadListener) {
 			if(mListDownloadListener != null){
 				mListDownloadListener.remove(listener);
 			}
 		}
 	}
-	@Override
-	public void onAddDownloadBean(List<DownLoadInfo> list) {
-		Log.v("BaseApplication", "DownloadService.onAddDownloadBean");
-		synchronized (mListDownloadListener) {
-			for(DownloadListener listener: mListDownloadListener){
-				listener.onAddDownloadBean(list);
-			}
-		}
-	}
 	
-	@Override
-	public void onFinishDownload(EDownloadStatus status, int id, int down,
-			int total) {
-		// TODO Auto-generated method stub
-		Log.v("BaseApplication", "DownloadService.finish");
-		synchronized (mListDownloadListener) {
-			for(DownloadListener listener: mListDownloadListener){
-				listener.onFinishDownload(status, id, down, total);
-			}
-		}
-		
-	}
+
 	@Override
 	public void onStartDownload(int id, int downSize, int total) {
-		// TODO Auto-generated method stub
-		Log.v("BaseApplication", "DownloadListener.onStartDownload and id = " + id);
 		synchronized (mListDownloadListener) {
 			for(DownloadListener listener: mListDownloadListener){
 				listener.onStartDownload(id, downSize, total);
 			}
 		}
-		
 	}
 
 	@Override
-	public void onDownloadProgeress(int offset) {
-		// TODO Auto-generated method stub
-//		Log.v("BaseApplication", "DownloadListener.onStartDownload and offset = " + offset);
+	public void onDownloadProgeress(int id, int offset) {
 		synchronized (mListDownloadListener) {
 			for(DownloadListener listener: mListDownloadListener){
-				listener.onDownloadProgeress(offset);
+				listener.onDownloadProgeress(id, offset);
+			}
+		}
+	}
+	
+	@Override
+	public void onFinishDownload(int id, EDownloadStatus status, int down,
+			int total) {
+		synchronized (mListDownloadListener) {
+			for(DownloadListener listener: mListDownloadListener){
+				listener.onFinishDownload(id, status, down, total);
 			}
 		}
 	}

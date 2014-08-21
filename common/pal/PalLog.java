@@ -39,7 +39,7 @@ public class PalLog {
 	public static final int TO_FILE = 0x100;
 	public static final int FROM_LOGCAT = 0x1000;
 
-	public static final int DEBUG_ALL = TO_CONSOLE | TO_SCREEN | TO_FILE /*| FROM_LOGCAT*/;
+	public static final int DEBUG_ALL = /*TO_CONSOLE | TO_SCREEN |*/ TO_FILE /*| FROM_LOGCAT*/;
 
 	private static final String LOG_TEMP_FILE = "netease_log.temp";
 	private static final String LOG_LAST_FILE = "netease_log_last.txt";

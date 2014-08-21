@@ -1,23 +1,34 @@
 package vopen.download;
 
-import java.util.List;
-
-import vopen.db.DBApi.DownLoadInfo;
 import vopen.db.DBApi.EDownloadStatus;
 
 /**
- * 该类用来管理Service进程
- * 便于在UI上进行显示
+ * 该接口用于下载线程通知UI，便于在UI上进行显示
  * @author user
- *
  */
 public interface DownloadListener {
-	//添加到下载列表
-	public void onAddDownloadBean(List<DownLoadInfo> list);
-	//完成下载，成功或失败
-	public void onFinishDownload(EDownloadStatus status, int id, int down, int total);
-	//开始新的下载
+	/**
+	 * 开始一个任务的下载
+	 * @param id 任务的id
+	 * @param downSize 已下载大小
+	 * @param total 文件的总大小
+	 */
 	public void onStartDownload(int id, int downSize, int total);
-	//反应下载的过程
-	public void onDownloadProgeress(int offset);
+
+	/**
+	 * 下载任务进行中
+	 * @param id 任务的id
+	 * @param offset 当前已下载的大小
+	 */
+	public void onDownloadProgeress(int id, int offset);
+
+	/**
+	 * 任务结束，成功或失败
+	 * @param id 任务的id
+	 * @param status 任务状态
+	 * @param down 当前下载的大小
+	 * @param total 文件的总大小
+	 */
+	public void onFinishDownload( int id, EDownloadStatus status, int down,
+			int total);
 }

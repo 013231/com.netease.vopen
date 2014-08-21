@@ -549,7 +549,7 @@ public class MobileAgent
       {
         appid = info.metaData.get("APPKEY").toString();
         version = Util.getNumberVersion(context);
-        mid = Constants.getAppChannelID();
+        mid = Constants.getAppChannelID(context);
         Log.v("MobileAgent getInfo()", "appid is" + appid  + " version is " + version + " mid is " + mid);
         if (mid == null)
         {

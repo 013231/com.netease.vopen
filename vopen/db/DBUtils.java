@@ -11,6 +11,7 @@ import vopen.db.DBApi.AccountInfo;
 import vopen.db.DBApi.CollectInfo;
 import vopen.db.DBApi.CourseDetailInfo;
 import vopen.db.DBApi.CoursePlayInfo;
+import vopen.db.DBApi.CourseType;
 import vopen.db.DBApi.DownLoadInfo;
 import vopen.db.DBApi.EDownloadStatus;
 import vopen.db.DBApi.VideoPlayInfo;
@@ -28,6 +29,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
+import android.text.format.DateUtils;
 import android.util.Log;
 
 import com.netease.util.PDEEngine;
@@ -61,6 +63,18 @@ public class DBUtils {
 			cur.close();
 		}
 		return rst;
+	}
+	
+	public static boolean isAllCourseDataExist(Context context){
+		boolean ret = false;
+		Cursor cur = DBApi.queryCourseByType(context, CourseType.DATA_TYPE_ALL, null);
+		if (cur != null && cur.moveToFirst()){
+			ret = true;
+		}
+		if (cur != null){
+			cur.close();
+		}
+		return ret;
 	}
 	
 	/**保存，修改课程*/
@@ -271,7 +285,11 @@ public class DBUtils {
     public static void addCollectNoLogin(Context context, CourseInfo courseInfo, String dateTime, boolean isSynced){
         CollectInfo collectInfo = new CollectInfo();
         collectInfo.mCourse_id = courseInfo.plid;
-        collectInfo.mCourse_img = courseInfo.imgpath;
+        //优先使用横屏的大图片 -- hzsongyuming
+        collectInfo.mCourse_img = courseInfo.largeImg;
+        if (StringUtil.isEmpty(collectInfo.mCourse_img)){
+        	collectInfo.mCourse_img = courseInfo.imgpath;
+        }
         collectInfo.mCourse_new_translate_num = 0;
         collectInfo.mCourse_playcount = courseInfo.playcount;
         collectInfo.mCourse_title = courseInfo.title;
@@ -344,8 +362,9 @@ public class DBUtils {
             			}
             		}
                 }
-                if(courseInfo != null)info.mCourse_translatecount = courseInfo.updated_playcount;
-                infoItem.mStrPlayRecord = getCoursePlayRecord(context, info.mCourse_id);
+                if(courseInfo != null)
+                	info.mCourse_translatecount = courseInfo.updated_playcount;
+                infoItem.mStrPlayRecord = getCoursePlayRecord2(context, info.mCourse_id);
                 list.add(infoItem);
             }
             c.close();
@@ -373,7 +392,7 @@ public class DBUtils {
                 info.mCourse_translatecount = c.getInt(c.getColumnIndex(VopenMyCollectHelper.COURSE_TRANSLATECOUNT));
                 info.mData_time = c.getString(c.getColumnIndex(VopenMyCollectHelper.DATA_TIME));
                 
-                infoItem.mStrPlayRecord = getCoursePlayRecord(context, info.mCourse_id);
+                infoItem.mStrPlayRecord = getCoursePlayRecord2(context, info.mCourse_id);
                 
                 list.add(infoItem);
             }
@@ -401,7 +420,7 @@ public class DBUtils {
                 info.mCourse_translatecount = c.getInt(c.getColumnIndex(VopenMyCollectHelper.COURSE_TRANSLATECOUNT));
                 info.mData_time = c.getString(c.getColumnIndex(VopenMyCollectHelper.DATA_TIME));
                 
-                infoItem.mStrPlayRecord = getCoursePlayRecord(context, info.mCourse_id);
+                infoItem.mStrPlayRecord = getCoursePlayRecord2(context, info.mCourse_id);
                 
                 list.add(infoItem);
             }
@@ -418,7 +437,11 @@ public class DBUtils {
     public static void addCollect(Context context, CourseInfo courseInfo, String dateTime, boolean isSynced, String userId){
         CollectInfo collectInfo = new CollectInfo();
         collectInfo.mCourse_id = courseInfo.plid;
-        collectInfo.mCourse_img = courseInfo.imgpath;
+        //优先使用横屏的大图片 -- hzsongyuming
+        collectInfo.mCourse_img = courseInfo.largeImg;
+        if (StringUtil.isEmpty(collectInfo.mCourse_img)){
+        	collectInfo.mCourse_img = courseInfo.imgpath;
+        }
         collectInfo.mCourse_new_translate_num = 0;
         collectInfo.mCourse_playcount = courseInfo.playcount;
         collectInfo.mCourse_title = courseInfo.title;
@@ -1040,6 +1063,7 @@ public static List<CourseInfo> searchVideo(List<CourseInfo> orglist,String query
 		
 		return allDataList;
 	}
+	
 	public static String getCoursePlayRecord(Context context, String course_id){
 		String strRecord = "";
         Cursor c = DBApi.queryCoursePlayByCourseID(context,course_id, null);
@@ -1059,7 +1083,7 @@ public static List<CourseInfo> searchVideo(List<CourseInfo> orglist,String query
 				if(or<2){
 					strRecord = "最后一课已看完，将重新播放";
 				}else{
-					strRecord = StringUtil.translatePlayRecord(String.valueOf(secitonid), position, totalLength);
+					strRecord = translatePlayRecord(String.valueOf(secitonid), position, totalLength);
 				}
 			}else{
 
@@ -1067,7 +1091,7 @@ public static List<CourseInfo> searchVideo(List<CourseInfo> orglist,String query
 				if(or<2){
 					strRecord = String.format("第%s课已看完，将播放下一课", String.valueOf(secitonid));
 				}else{
-					strRecord = StringUtil.translatePlayRecord(String.valueOf(secitonid), position, totalLength);
+					strRecord = translatePlayRecord(String.valueOf(secitonid), position, totalLength);
 				}
 			}
         }else{
@@ -1079,6 +1103,58 @@ public static List<CourseInfo> searchVideo(List<CourseInfo> orglist,String query
         }
         return strRecord;
 	}
+	
+	/**
+	 * 获取某个课程的播放记录信息
+	 * @param context
+	 * @param course_id
+	 * @return
+	 */
+	private static String getCoursePlayRecord2(Context context, String course_id) {
+		String strRecord = "";
+		Cursor c = DBApi.queryCoursePlayByCourseID(context, course_id, null);
+		if (c != null && c.moveToNext()) {
+			int secitonid = c.getInt(c
+					.getColumnIndex(VopenCoursePlayRecordHeleper.VIDEO_INDEX));
+			int position = c
+					.getInt(c
+							.getColumnIndex(VopenCoursePlayRecordHeleper.PLAY_POSITION));//ms
+			int totalLength = c.getInt(c
+					.getColumnIndex(VopenCoursePlayRecordHeleper.VIDEO_LENGTH));//s
+			int playcount = c.getInt(c
+					.getColumnIndex(VopenCoursePlayRecordHeleper.VIDEO_COUNTS));
+			position = position / 1000;
+			if (position > 0) {
+				int left = totalLength - position;
+				if (left <= 2) {//剩余2s以内,当作看完
+					if (secitonid == playcount) {
+						strRecord = "已看完";
+					} else {
+						strRecord = String.format("第%s课已看完",
+								String.valueOf(secitonid));
+					}
+				} else {
+					strRecord = String.format("看到第" + secitonid + "课 %s",
+							DateUtils.formatElapsedTime(position));
+				}
+			}
+		}
+		if (c != null) {
+			c.close();
+		}
+		if (strRecord.length() == 0) {
+			strRecord = "未观看";
+		}
+		return strRecord;
+	}
+	
+	private static String translatePlayRecord(String sectionid, int position,
+			int all) {
+		String rst = "看到第" + sectionid + "课 %s";
+		String timeStr = DateUtils.formatElapsedTime(position);
+		return String.format(rst, timeStr);
+	}
+	
 	/**
 	 * 获得已下载视频列表
 	 * @param db

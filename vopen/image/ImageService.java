@@ -126,7 +126,8 @@ public class ImageService implements TransactionListener {
 			if(bmp != null){
 				BitmapCbInfo cbInfo = mCbInfos.get(arg2);
 				if(cbInfo != null){
-					bmp = ImageHelper.resizeImage(bmp, cbInfo.width, cbInfo.height);
+					//取消缩放，使用imageview自己的缩放模式
+//					bmp = ImageHelper.resizeImage(bmp, cbInfo.width, cbInfo.height);
 					if(bmp != null && path != null){
 						String file = ImageHelper.getNameFromPath(path);
 						mCache.put(file, bmp);

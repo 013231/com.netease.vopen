@@ -31,7 +31,7 @@ public class GroupTransactionListener implements TransactionListener {
 	
 	@Override
 	synchronized public void onTransactionError(int errCode,int arg1, int arg2, Object arg3) {
-		PalLog.i("onTransactionError errCode", "errCode = " + errCode);
+		PalLog.i("GroupTransactionListener", "errCode = " + errCode);
 		String errStr = null;
 		
 		if(arg3 instanceof String) {
@@ -39,7 +39,7 @@ public class GroupTransactionListener implements TransactionListener {
 		}
 		
 		if(Util.isStringEmpty(errStr)){
-			PalLog.log("get errStr");
+			PalLog.e("GroupTransactionListener","get errStr");
 			errStr = ErrorToString.getString(errCode);
 		}
 			

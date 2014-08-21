@@ -91,7 +91,7 @@ public class DownloadPrefHelper {
 			for (int i = 0; i < count; i++) {
 				threadInfos[i] = DownloadPrefHelper.getInt(context, plid + "_" + pnum
 						+ "_" + i, 0);
-				PalLog.e(TAG,"threadInfos["+i+"] "+threadInfos[i]);
+				PalLog.d(TAG,"threadInfos["+i+"] "+threadInfos[i]);
 			}
 		}
 		return threadInfos;
@@ -113,7 +113,7 @@ public class DownloadPrefHelper {
 			for (int i = 0; i < count; i++) {
 				endPos = i == count - 1 ? total : block*(i+1);
 				startPos = DownloadPrefHelper.getInt(context, plid + "_" + pnum + "_" + i, 0);				
-				PalLog.e("DownloadPrefHelper","startPos "+startPos+", endPos "+endPos);
+				PalLog.d("DownloadPrefHelper","startPos "+startPos+", endPos "+endPos);
 				if(startPos < endPos) return false;
 			}
 			BaseApplication.initDownCurSize(BaseApplication.getTotalSize());

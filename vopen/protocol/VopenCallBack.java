@@ -3,14 +3,18 @@ package vopen.protocol;
 import java.util.List;
 
 import vopen.response.AboutInfo;
+import vopen.response.BindAccountInfo;
 import vopen.response.CheckVersionInfo;
 import vopen.response.CommentBuildingListInfo;
 import vopen.response.CommentCount;
 import vopen.response.CourseInfo;
+import vopen.response.HeadAd;
+import vopen.response.HotWordInfo;
 import vopen.response.OneWholeCommentBuildingInfo;
 import vopen.response.PostCommentStatus;
 import vopen.response.PushList;
 import vopen.response.RecommAppInfo;
+import vopen.response.RecommendItem;
 import vopen.response.SyncItemInfo;
 import vopen.response.UiEventTransport;
 import vopen.transactions.BaseTransaction;
@@ -93,6 +97,27 @@ public class VopenCallBack {
      */
 	public void onGetRecomm(int transactionId, List<RecommAppInfo> list){}
 
+	/**
+	 * 获取热词成功 
+	 */
+	public void onGetHotWords(int transactionId, List<HotWordInfo> list){}
+	
+	/**
+	 * 获取用户推荐成功
+	 */
+	public void onGetRecommends(int transactionId, List<RecommendItem> list){}
+	
+	/**
+	 * 获取push service用户绑定信息成功 
+	 */
+	public void onGetUserBindInfo(int transactionId, BindAccountInfo info){};
+	
+	/**
+	 * 获取头图广告信息成功
+	 */
+	public void onGetHeadAdInfo(int transactionId, HeadAd[] ads){}
+	
+	
 	/*************************************************************
 	 * error
 	 *************************************************************/
@@ -161,6 +186,26 @@ public class VopenCallBack {
      * 获取推荐失败
      */
 	public void onGetRecommError(int transactionId, int errCode, String err){}
+	
+	/**
+	 * 获取热词失败
+	 */
+	public void onGetHotWordsError(int transcationId, int errCode, String err){}
+	
+	/**
+	 * 获取用户推荐失败
+	 */
+	public void onGetRecommendsError(int transactionId, int errCode, String err){}
+	
+	/**
+	 * 获取用户绑定信息失败 
+	 */
+	public void onGetUserBindInfoError(int transactionId, int errCode, String err){}
+	
+	/**
+	 * 获取头图广告信息失败
+	 */
+	public void onGetHeadAdInfoError(int transactionId, int errCode, String err){}
 	
 	/*********************************************************
 	 * 评论相关回调
@@ -262,6 +307,18 @@ public class VopenCallBack {
 		case BaseTransaction.TRANSACTION_GET_RECOMM_APP:
 			onGetRecommError(transactionId, errCode, errStr);
 			break;
+		case BaseTransaction.TRANSACTION_GET_HOT_WORDS:
+			onGetHotWordsError(transactionId, errCode, errStr);
+			break;
+		case BaseTransaction.TRANSACTION_GET_RECOMMENDS:
+			onGetRecommendsError(transactionId, errCode, errStr);
+			break;
+		case BaseTransaction.TRANSACTION_GET_USER_BIND_INFO:
+			onGetUserBindInfoError(transactionId, errCode, errStr);
+			break;
+		case BaseTransaction.TRANSACTION_GET_HEAD_ADS:
+			onGetHeadAdInfoError(transactionId, errCode, errStr);
+			break;
 		}
 	}
 	private void onSuccess(int type, int transactionId, Object obj) {
@@ -337,6 +394,18 @@ public class VopenCallBack {
 			break;
 		case BaseTransaction.TRANSACTION_GET_RECOMM_APP:
 			onGetRecomm(transactionId,(List<RecommAppInfo>)obj);
+			break;
+		case BaseTransaction.TRANSACTION_GET_HOT_WORDS:
+			onGetHotWords(transactionId, (List<HotWordInfo>)obj);
+			break;
+		case BaseTransaction.TRANSACTION_GET_RECOMMENDS:
+			onGetRecommends(transactionId, (List<RecommendItem>)obj);
+			break;
+		case BaseTransaction.TRANSACTION_GET_USER_BIND_INFO:
+			onGetUserBindInfo(transactionId, (BindAccountInfo)obj);
+			break;
+		case BaseTransaction.TRANSACTION_GET_HEAD_ADS:
+			onGetHeadAdInfo(transactionId, (HeadAd[]) obj);
 			break;
 		}
 	}

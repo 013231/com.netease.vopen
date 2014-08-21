@@ -55,6 +55,8 @@ public class DownloadUtils {
 	 */
 	public static final String SUBFILE_NOT_COMPLETED_POSTFIX = ".srt.nc";
 	
+	
+	private static final int BUFFER_SIZE = 8 * 1024;
 	/**
 	 * 修改已下载完成的文件的后缀
 	 * @param plid
@@ -264,7 +266,7 @@ public class DownloadUtils {
 				HttpEntity entity = response.getEntity();
 				if (entity != null && entity.getContentLength() > 0) {
 					InputStream inStream = entity.getContent();
-					byte[] buffer = new byte[DownloadThread.BUFFER_SIZE];
+					byte[] buffer = new byte[BUFFER_SIZE];
 					int offset = 0;
 					RandomAccessFile threadfile = new RandomAccessFile(saveFile, "rwd");
 					threadfile.seek(0);

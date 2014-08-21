@@ -139,6 +139,41 @@ public abstract class BaseTransaction extends AsyncTransaction {
 	 */
 	public static final int TRANSACTION_GET_COMMENT_COUNT = 0x0 << 8 | 0x20;
 	
+	/**
+	 * 获取搜索热词
+	 */
+	public static final int TRANSACTION_GET_HOT_WORDS = 0x0 << 8 | 0x21;
+	
+	/**
+	 * 获取个性化推荐内容
+	 */
+	public static final int TRANSACTION_GET_RECOMMENDS = 0x0 << 8 | 0x22;
+	
+	/**
+	 * 发送搜索反馈
+	 */
+	public static final int TRANSACTION_SEND_SEARCH_FEEDBACK = 0x0 << 8 | 0x23;
+	
+	/**
+	 * 查看课程详情反馈 
+	 */
+	public static final int TRANSACTION_SEND_VIEW_DETAIL_FEEDBACK = 0x0 << 8 | 0x24;
+	
+	/**
+	 * 下载课程反馈 
+	 */
+	public static final int TRANSACTION_SEND_DOWNLOAD_FEEDBACK = 0x0 << 8 | 0x25;	
+	
+	/**
+	 * 获取绑定用户的信息
+	 */
+	public static final int TRANSACTION_GET_USER_BIND_INFO = 0x0 << 8 | 0x26;
+	
+	/**
+	 * 获取头图上的推广信息
+	 */
+	public static final int TRANSACTION_GET_HEAD_ADS = 0x0 << 8 | 0x27;
+	
 	protected int getHttpErrorCode(int code,int type) {
 
 		switch (code) {	

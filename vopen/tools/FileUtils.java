@@ -640,7 +640,7 @@ public class FileUtils {
 			writableFiles.add(new File(path));
 		}
 		// mnt下没有或者只有一个sd卡
-		if (writableFiles.size() == 0 || writableFiles.size() == 1) {
+		if (writableFiles.size() == 0) {
 			File f = Environment.getExternalStorageDirectory();
 			writableFiles.clear();
 			writableFiles.add(f);
