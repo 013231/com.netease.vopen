@@ -72,7 +72,7 @@ public class BlogTransaction extends BaseTransaction {
 	
 	private boolean isLogin(){
 		String[] tokens = ManagerWeiboAccount.getWBAccountToken(BaseApplication.getAppInstance(),mName, WeiboAccountColumn.WB_TYPE_DOUBAN);
-		if(tokens!= null && tokens.length == 2){
+		if(tokens!= null && tokens.length == 3){
 			if(!Util.isStringEmpty(tokens[0]) && !Util.isStringEmpty(tokens[1])){
 				setLogin(tokens[0], tokens[1]);
 				return true;

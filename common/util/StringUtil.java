@@ -10,57 +10,16 @@ import com.netease.vopen.pal.Constants;
 
 public class StringUtil {
 	
-	//position 为 毫秒 这个函数能够处理三种情况
-	public static String translatePlayRecord(String sectionid,int position,int all){
-		
-		String rst = "第"+sectionid+"课 ";
-		
-		if(position<all){
-			if(position/60000<1){
-				rst = rst + " 小于1分钟";
-			}else{
-				int hour = position/(1000*60*60);
-				int minute = (position%(1000*60*60))/(1000*60);
-				int second = ((position%(1000*60*60))%(1000*60))/1000;
-				if(hour<10){
-					if(minute<10){
-						if(second<10){
-							rst = rst + " 0"+hour+":0"+minute+":0"+second;
-						}else{
-							rst = rst + " 0"+hour+":0"+minute+":"+second;
-						}
-						
-					}else{
-						if(second<10){
-							rst = rst + " 0"+hour+":"+minute+":0"+second;
-						}else{
-							rst = rst + " 0"+hour+":"+minute+":"+second;
-						}
-					}
-				}else{
-					if(minute<10){
-						if(second<10){
-							rst = rst + " "+hour+":0"+minute+":0"+second;
-						}else{
-							rst = rst + " "+hour+":0"+minute+":"+second;
-						}
-						
-					}else{
-						if(second<10){
-							rst = rst + " 0"+hour+":"+minute+":0"+second;
-						}else{
-							rst = rst + " 0"+hour+":"+minute+":"+second;
-						}
-					}
-					
-				}
-			}
+	public static boolean isEqual(String str1, String str2){
+		if (isEmpty(str1)){
+			return isEmpty(str2);
 		}else{
-			rst = rst + "已看完，将播放下一课";
+			return str1.equals(str2);
 		}
-
-		return rst;
-		
+	}
+	
+	public static boolean isEmpty(String str){
+		return str == null || str.length() == 0;
 	}
 	
 	public static String makeSafe(String paramString)

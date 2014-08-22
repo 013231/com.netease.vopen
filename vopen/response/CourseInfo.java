@@ -7,6 +7,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.netease.vopen.pal.Constants;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -23,6 +25,7 @@ public class CourseInfo implements Parcelable {
 	public String subtitle; // 剧集的英文标题
 	public String plid; // 节目ID
 	public String imgpath; // 图片地址
+	public String largeImg;	//大图片地址（横版图片）
 	public String school; // 学校
 	public String director; // 导演
 	public int playcount; // 总集数
@@ -37,7 +40,9 @@ public class CourseInfo implements Parcelable {
 	public int mCurrentPosition = -1;// 当前课程播放位置
 	public String tags;// 2012.11新增,标识分类
 	public String source;// 2012.11新增,标识来源
-
+    public int 		mHitCount;
+    public long		mTimestamp;
+    
 	public CourseInfo() {
 
 	}
@@ -64,6 +69,7 @@ public class CourseInfo implements Parcelable {
 		subtitle = BaseUtil.nullStr(jso.optString("subtitle"));
 		plid = BaseUtil.nullStr(jso.optString("plid"));
 		imgpath = BaseUtil.nullStr(jso.optString("imgpath"));
+		largeImg = BaseUtil.nullStr(jso.optString("largeimgurl"));
 		school = BaseUtil.nullStr(jso.optString("school"));
 		director = BaseUtil.nullStr(jso.optString("director"));
 		playcount = jso.optInt("playcount");
@@ -75,6 +81,8 @@ public class CourseInfo implements Parcelable {
 		ccUrl = BaseUtil.nullStr(jso.optString("ccUrl"));
 		tags = jso.optString("tags");
 		source = jso.optString("source");
+		mHitCount 		= jso.optInt("hits");
+		mTimestamp 		= jso.optLong("ltime");
 		JSONArray jsa = jso.optJSONArray("videoList");
 		try {
 			if (jsa != null && jsa.length() > 0) {
@@ -94,6 +102,7 @@ public class CourseInfo implements Parcelable {
 			json.put("subtitle", subtitle);
 			json.put("plid", plid);
 			json.put("imgpath", imgpath);
+			json.put("largeimgurl", largeImg);
 			json.put("school", school);
 			json.put("director", director);
 			json.put("playcount", playcount);
@@ -105,6 +114,8 @@ public class CourseInfo implements Parcelable {
 			json.put("ccUrl", ccUrl);
 			json.put("tags", tags);
 			json.put("source", source);
+			json.put("hits", mHitCount);
+			json.put("ltime", mTimestamp);
 			if (videoList != null) {
 				JSONArray jsonArray = new JSONArray();
 				for (int i = 0; i < videoList.size(); i++) {
@@ -133,6 +144,7 @@ public class CourseInfo implements Parcelable {
 		parcel.writeString(subtitle);
 		parcel.writeString(plid);
 		parcel.writeString(imgpath);
+		parcel.writeString(largeImg);
 		parcel.writeString(school);
 		parcel.writeString(director);
 		parcel.writeInt(playcount);
@@ -147,6 +159,8 @@ public class CourseInfo implements Parcelable {
 		parcel.writeInt(mCurrentPosition);
 		parcel.writeString(source);
 		parcel.writeString(tags);
+        parcel.writeInt(mHitCount);
+        parcel.writeLong(mTimestamp);
 	}
 
 	public void readFromParcel(Parcel parcel) {
@@ -155,6 +169,7 @@ public class CourseInfo implements Parcelable {
 		subtitle = parcel.readString();
 		plid = parcel.readString();
 		imgpath = parcel.readString();
+		largeImg = parcel.readString();
 		school = parcel.readString();
 		director = parcel.readString();
 		playcount = parcel.readInt();
@@ -170,6 +185,8 @@ public class CourseInfo implements Parcelable {
 		mCurrentPosition = parcel.readInt();
 		source = parcel.readString();
 		tags = parcel.readString();
+		mHitCount = parcel.readInt();
+    	mTimestamp = parcel.readLong();
 	}
 
 	public static final Parcelable.Creator<CourseInfo> CREATOR = new Creator<CourseInfo>() {
@@ -184,4 +201,33 @@ public class CourseInfo implements Parcelable {
 		}
 	};
 
+	
+	/**
+	 * 判断课程是否国内课程。
+	 * 如果是国内课程，文案改成：已更新和未更新
+	 * @param info
+	 * @return
+	 */
+	public boolean isDomesticCourse(){
+		if (source != null){
+			return source.contains(Constants._SOURCE_DOMESTIC);
+		}
+		return false;
+	} 
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o == this){
+			return true;
+		}
+		if (!(o instanceof CourseInfo)){
+			return false;
+		}
+		CourseInfo in = (CourseInfo) o;
+		if (this.plid == null){
+			return in.plid == null;
+		}else{
+			return plid.equals(in.plid);
+		}
+	}
 }

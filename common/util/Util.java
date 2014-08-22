@@ -503,6 +503,31 @@ public class Util {
 		}
 		
 	}
+	
+	private static String domain = null;
+	public static String getPushDomain(Context context){
+		if (domain == null){
+			domain = getApplicationMetaInfo(context, "NETEASE_DOMAIN");
+		}
+		return domain;
+	}
+	
+	private static String productKey = null;
+	public static String getPushProductKey(Context context){
+		if (productKey == null){
+			productKey = getApplicationMetaInfo(context, "NETEASE_PRODUCT_KEY");
+		}
+		return productKey;
+	}
+	
+	private static String productVersion = null;
+	public static String getPushProductVersion(Context context){
+		if (productVersion == null){
+			productVersion = getApplicationMetaInfo(context, "NETEASE_PRODUCT_VERSION");
+		}
+		return productVersion;
+	}
+	
 	public static String getNumberVersion(Context context) {
 		 if (null == context) {
 		        PalLog.w("Util","invalid input when calling getClientVersion()");

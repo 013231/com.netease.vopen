@@ -195,7 +195,7 @@ public class FriendshipsTransaction extends BaseTransaction {
 	
 	private boolean isLogin(){
 		String[] tokens = ManagerWeiboAccount.getWBAccountToken(BaseApplication.getAppInstance(), mAccountName, WeiboAccountColumn.WB_TYPE_SINA);
-		if(tokens!= null && tokens.length == 2){
+		if(tokens!= null && tokens.length == 3){
 			if(!Util.isStringEmpty(tokens[0]) && !Util.isStringEmpty(tokens[1])){
 				setLogin(tokens[0], tokens[1]);
 				return true;

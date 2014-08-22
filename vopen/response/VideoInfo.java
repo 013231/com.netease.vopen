@@ -18,6 +18,7 @@ import common.util.BaseUtil;
  * @date   2012-1-9
  */
 public class VideoInfo implements Parcelable{
+	public String 	mid;
 	public String 	title; //视频标题
     //2013-9-16 添加广告
     public String 	mAdVideoUrl;//广告视频地址
@@ -63,7 +64,7 @@ public class VideoInfo implements Parcelable{
 	private void parseJson(JSONObject jso){
 		if(jso == null)
 			return;
-		
+		mid 			= BaseUtil.nullStr(jso.optString("mid"));
 		title 			= BaseUtil.nullStr(jso.optString("title"));
 		mAdVideoUrl 	= BaseUtil.nullStr(jso.optString("adv"));
 		mAdLink			= BaseUtil.nullStr(jso.optString("advlink"));
@@ -98,6 +99,7 @@ public class VideoInfo implements Parcelable{
 	public JSONObject toJsonObject(){
 		try {
 			JSONObject json = new JSONObject();
+			json.put("mid", 			mid);
 			json.put("title", 			title);
 			json.put("adv", 			mAdVideoUrl);
 			json.put("advlink", 		mAdLink);
@@ -134,7 +136,8 @@ public class VideoInfo implements Parcelable{
 	}
 
 	 @Override
-	    public void writeToParcel(Parcel parcel, int paramInt) {	        
+	    public void writeToParcel(Parcel parcel, int paramInt) {
+		 	parcel.writeString(mid);
 	        parcel.writeString(title);
 	        parcel.writeString(mAdVideoUrl);
 	        parcel.writeString(mAdLink);
@@ -156,7 +159,7 @@ public class VideoInfo implements Parcelable{
 	        
 	    }  
 	    public void readFromParcel(Parcel source) {
-	        
+	        mid 		= source.readString();
 	    	title 		= source.readString();
 	    	mAdVideoUrl = source.readString();
 	    	mAdLink		= source.readString();
@@ -189,4 +192,20 @@ public class VideoInfo implements Parcelable{
 	            return new VideoInfo[size];
 	        }
 	    };
+	    
+	    @Override
+		public boolean equals(Object o) {
+			if (o == this){
+				return true;
+			}
+			if (!(o instanceof VideoInfo)){
+				return false;
+			}
+			VideoInfo in = (VideoInfo) o;
+			if (this.mid == null){
+				return in.mid == null;
+			}else{
+				return mid.equals(in.mid);
+			}
+		}
 }

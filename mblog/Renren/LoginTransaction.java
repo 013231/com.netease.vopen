@@ -176,7 +176,7 @@ public class LoginTransaction extends BaseTransaction
 				throw new JSONException("parse renren error");
 			}
 			result.setName(BaseUtil.nullStr(userJson.optString("name")));
-			result.setScreeName(BaseUtil.nullStr(userJson.optString("uid")));
+			result.setId(BaseUtil.nullStr(userJson.optString("uid")));
 			result.setDomain("http://www.renren.com/profile.do?id=" + result.getScreeName());
 			result.setProfile(BaseUtil.nullStr(userJson.optString("tinyurl")));
 		} catch (JSONException e) {

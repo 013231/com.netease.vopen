@@ -154,7 +154,7 @@ public class ManagerWeiboAccount {
 			context.getContentResolver().update(WeiboAccountColumn.CONTENT_URI, cv, where, null);
 		}
 	}
-
+	
 	static public void setWBAccountTokenInner(Context context,String accountName,
 			String username,int type,String token,String secret, String mainUrl, 
 			String portrait, String userid)
@@ -182,7 +182,7 @@ public class ManagerWeiboAccount {
 			cv.put(WeiboAccountColumn.C_SECRET, secret);
 			cv.put(WeiboAccountColumn.C_MAINURL, mainUrl);
 			cv.put(WeiboAccountColumn.C_PORTRAIT, portrait);
-			
+			cv.put(WeiboAccountColumn.C_ACCOUNT, userid);
 			context.getContentResolver().update(WeiboAccountColumn.CONTENT_URI, cv, where, null);
 		} else {
 			ContentValues cv = new ContentValues();
@@ -194,7 +194,7 @@ public class ManagerWeiboAccount {
 			cv.put(WeiboAccountColumn.C_TYPE_WB, type);
 			cv.put(WeiboAccountColumn.C_MAINURL, mainUrl);
 			cv.put(WeiboAccountColumn.C_PORTRAIT, portrait);
-		
+			cv.put(WeiboAccountColumn.C_ACCOUNT, userid);
 			context.getContentResolver().insert(WeiboAccountColumn.CONTENT_URI, cv);
 		}
 	}
@@ -210,7 +210,7 @@ public class ManagerWeiboAccount {
 				LoginResult result = new LoginResult(type);
 				result.setAccessToken(cursor.getString(COLUMNS_TOKEN));
 				result.setTokenSecret(cursor.getString(COLUMNS_SECRET));
-				
+				result.setId(cursor.getString(COLUMNS_ACCOUNT));
 				return result;
 			}
 		}
@@ -236,15 +236,16 @@ public class ManagerWeiboAccount {
 		if(context == null || TextUtils.isEmpty(username)|| TextUtils.isEmpty(accountName))
 			return null;
 		
-		String where = WeiboAccountColumn.C_ACCOUNT  +  " = '" + accountName + "' "  + " AND " + 
+		String where = /*WeiboAccountColumn.C_ACCOUNT  +  " = '" + accountName + "' "  + " AND " + */
 			WeiboAccountColumn.C_NAME  +  " = '" + username + "' "  + " AND " + WeiboAccountColumn.C_TYPE_WB + " = " + type;
 		
 		Cursor cursor = context.getContentResolver().query(WeiboAccountColumn.CONTENT_URI, WEIBOACCOUNT_PRO, where, null, null);
-		String[] retString = new String[2];
+		String[] retString = new String[3];
 		if(cursor != null && cursor.moveToFirst())
 		{
 			retString[0] = cursor.getString(COLUMNS_TOKEN);
 			retString[1] = cursor.getString(COLUMNS_SECRET);
+			retString[2] = cursor.getString(COLUMNS_ACCOUNT);
 		}
 		if(cursor != null)
 			cursor.close();
@@ -258,7 +259,7 @@ public class ManagerWeiboAccount {
 		if(context == null || TextUtils.isEmpty(accountName))
 			return null;
 		
-		String where = WeiboAccountColumn.C_ACCOUNT  +  " = '" + accountName + "'";
+		String where = /*WeiboAccountColumn.C_ACCOUNT  +  " = '" + accountName + "'"*/ null;
 		return context.getContentResolver().query(WeiboAccountColumn.CONTENT_URI, WEIBOACCOUNT_PRO, where, null, WeiboAccount.C_TYPE_WB+" ASC");
 	}
 	
@@ -377,8 +378,9 @@ public class ManagerWeiboAccount {
 			return;
 		
 		//modified by cxl
-		String accountName = getCurrAccountName(context);
-		String where = WeiboAccountColumn.C_ACCOUNT  +  " = '" + accountName + "' "  + " AND " + WeiboAccountColumn.C_TYPE_WB + " = " + wbType;
+//		String accountName = getCurrAccountName(context);
+//		String where = WeiboAccountColumn.C_ACCOUNT  +  " = '" + accountName + "' "  + " AND " + WeiboAccountColumn.C_TYPE_WB + " = " + wbType;
+		String where = WeiboAccountColumn.C_TYPE_WB + " = " + wbType;
 		
 		context.getContentResolver().delete(WeiboAccountColumn.CONTENT_URI, where, null);
 	}

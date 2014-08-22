@@ -6,12 +6,11 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import android.preference.PreferenceManager;
-
 import vopen.app.BaseApplication;
 import vopen.protocol.VopenProtocol;
 import vopen.protocol.VopenServiceCode;
 import vopen.response.RecommAppInfo;
+import android.content.SharedPreferences;
 
 import common.framework.http.HttpRequest;
 import common.framework.task.TransactionEngine;
@@ -22,9 +21,10 @@ import common.util.Util;
 
 public class GetRecommAppTransaction extends BaseTransaction {
 	/**
-     * 推荐APP,缓存记录的配置文件
-     */
-    public static final String RECOMM_APP_JSON = "recomm_app_json";
+	 * 推荐APP,缓存记录的配置文件
+	 */
+	public static final String RECOMM_APP_JSON = "recomm_app_json";
+	public static final String RECOMM_APP_FILE = "recomm_apps";
 
 	public GetRecommAppTransaction(TransactionEngine transMgr) {
 		super(transMgr, TRANSACTION_GET_RECOMM_APP);
@@ -36,10 +36,9 @@ public class GetRecommAppTransaction extends BaseTransaction {
 		// TODO Auto-generated method stub
 		if (!Util.isStringEmpty(response)) {
 			// 写入本地
-			PreferenceManager
-					.getDefaultSharedPreferences(
-							BaseApplication.getAppInstance()).edit()
-					.putString(RECOMM_APP_JSON, response).commit();
+			SharedPreferences sp = BaseApplication.getAppInstance()
+					.getSharedPreferences(RECOMM_APP_FILE, 0);
+			sp.edit().putString(RECOMM_APP_JSON, response).commit();
 			try {
 				JSONArray jsonarr = new JSONArray(response);
 				List<RecommAppInfo> list = new LinkedList<RecommAppInfo>();
@@ -64,9 +63,9 @@ public class GetRecommAppTransaction extends BaseTransaction {
 	public void onResponseError(int errCode, Object err) {
 		// TODO Auto-generated method stub
 		PalLog.d("GetRecommAppTransaction", "No web connect,load from local");
-		String json = PreferenceManager
-				.getDefaultSharedPreferences(
-						BaseApplication.getAppInstance()).getString(RECOMM_APP_JSON, "");
+		SharedPreferences sp = BaseApplication.getAppInstance()
+				.getSharedPreferences(RECOMM_APP_FILE, 0);
+		String json = sp.getString(RECOMM_APP_JSON, "");
 		if (json != null) {
 			// 解析后发送
 			JSONArray jsonarr;
@@ -95,7 +94,8 @@ public class GetRecommAppTransaction extends BaseTransaction {
 	@Override
 	public void onTransact() {
 		// TODO Auto-generated method stub
-		HttpRequest httpRequest = VopenProtocol.getInstance().createGetRecommAppRequest();
+		HttpRequest httpRequest = VopenProtocol.getInstance()
+				.createGetRecommAppRequest();
 		if (!isCancel()) {
 			sendRequest(httpRequest);
 		} else {

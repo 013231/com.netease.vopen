@@ -17,7 +17,7 @@ public class QqService extends BaseService{
 	public static final String QQ_APP_KEY = "801125947";
 	public static final String QQ_APP_SECRET = "0cf77f62b7b2288ac72bb38045d3a6b9";
 	
-	private static final String QQ_SERVER_DOMAIN = "http://open.t.qq.com";
+	private static final String QQ_SERVER_DOMAIN = "https://open.t.qq.com";
 	
 	private static QqService s_Instance;
 	public static QqService getInstance(){
@@ -62,7 +62,7 @@ public class QqService extends BaseService{
 	
 	public int doLogin(BaseTransListener l){
 		resetOauthClient(QQ_APP_KEY, QQ_APP_SECRET);
-		LoginTransaction t = new LoginTransaction();
+		LoginTransaction2 t = new LoginTransaction2();
 		return startTransaction(t, l);
 	}
 	

@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.regex.Pattern;
 
 import vopen.protocol.VopenServiceCode;
 import android.graphics.Bitmap;
@@ -20,14 +21,16 @@ import common.framework.task.TransactionEngine;
 import common.pal.PalLog;
 import common.pal.PalPlatform;
 import common.util.NameValuePair;
+import common.util.URLEncoder;
 
 public class ImageTransaction extends AsyncTransaction {
 	int mWidth;
 	int mHeight;
 	String mUrl;
-	public static final int Error_Catch = 5*1024*1024;  //当sd卡剩余空间小于该值时，将不往缓存中保存数据
-	
-	protected ImageTransaction(TransactionEngine transMgr, String url, int width, int height) {
+	public static final int Error_Catch = 5 * 1024 * 1024; //当sd卡剩余空间小于该值时，将不往缓存中保存数据
+
+	protected ImageTransaction(TransactionEngine transMgr, String url,
+			int width, int height) {
 		super(transMgr, 0);
 		mWidth = width;
 		mHeight = height;
@@ -43,77 +46,94 @@ public class ImageTransaction extends AsyncTransaction {
 	public void onTransactException(Exception e) {
 		onResponseError(VopenServiceCode.TRANSACTION_FAIL, null);
 	}
-	
+
 	@Override
 	public void onResponseSuccess(String response, NameValuePair[] pairs) {
 		throw new IllegalAccessError("Download image must responsed as stream");
 	}
-	
+
 	@Override
 	public void onResponseSuccess(InputStream in, NameValuePair[] pairs) {
 		boolean b = false;
-		if(in != null){
+		if (in != null) {
 			b = saveFile(in, pairs);
 		}
-		
-		if(b){
+
+		if (b) {
 			String path = ImageHelper.getLocalImagePath(mUrl, mWidth, mHeight);
-	       	notifyMessage(0, mType, getId(), path);
-		} else{
-			
-            try {
-	            Bitmap bitmap = BitmapFactory.decodeStream(in); 
-	            PalLog.i("ImageTransaction","onResponseSuccess notcached,bitmap is" + bitmap);
-	            if(bitmap != null) {
-	            	notifyMessage(0, mType, getId(), bitmap);	
-	            } else {
-	            	notifyError(VopenServiceCode.TRANSACTION_FAIL, mType, getId(), null);
-	            }
+			notifyMessage(0, mType, getId(), path);
+		} else {
+
+			try {
+				Bitmap bitmap = BitmapFactory.decodeStream(in);
+				PalLog.i("ImageTransaction",
+						"onResponseSuccess notcached,bitmap is" + bitmap);
+				if (bitmap != null) {
+					notifyMessage(0, mType, getId(), bitmap);
+				} else {
+					notifyError(VopenServiceCode.TRANSACTION_FAIL, mType,
+							getId(), null);
+				}
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				notifyError(VopenServiceCode.TRANSACTION_FAIL, mType, getId(), null);
-			} 	
+				notifyError(VopenServiceCode.TRANSACTION_FAIL, mType, getId(),
+						null);
+			}
 		}
 	}
+
 	@Override
 	public void onTransact() {
-//		PalLog.i("ImageTransaction", "[url]" + mUrl + "|" + mWidth + "x" + mHeight);
+		//		PalLog.i("ImageTransaction", "[url]" + mUrl + "|" + mWidth + "x" + mHeight);
 		if (!isCancel()) {
 			String path = ImageHelper.getLocalImagePath(mUrl, mWidth, mHeight);
-	        File file = new File(path);
-			if(file.exists()){
+			File file = new File(path);
+			if (file.exists()) {
 				notifyMessage(0, mType, getId(), path);
 				getTransactionEngine().endTransaction(this);
-			}
-			else{
+			} else {
 				HttpRequest request = createImageRequest();
 				sendRequest(request);
 			}
-			
+
 		} else {
 			getTransactionEngine().endTransaction(this);
 		}
 	}
 
-    
-	private HttpRequest createImageRequest(){
-		StringBuilder url = new StringBuilder(Constants.IMG_URL_PREFEX);
-		url.append(mUrl);
-		if(mWidth > 0)
-			url.append("&w=" + mWidth);
-		if(mHeight > 0)
-			url.append("&h=" + mHeight);
-		url.append("&limit=0");
-		url.append("&fill=0");
-		url.append("&gif=0");
-          
-        HttpRequest request = new HttpRequest(url.toString());
+	private static Pattern PATTERN126 = Pattern
+			.compile("^http://imgsize\\.ph\\.126\\.net/\\?enlarge=true&imgurl=\\S*_\\d+x\\d+x\\d+x\\d+.jpg$");
+
+	private HttpRequest createImageRequest() {
+		StringBuilder url = new StringBuilder();
+		if (mUrl != null && PATTERN126.matcher(mUrl).matches()) {//已经使用ph.126.net裁剪服务器
+			//去掉后面的裁剪参数，自己添加
+			int index = mUrl.lastIndexOf("_");
+			if (index != -1) {
+				url.append(mUrl.substring(0, index));
+				url.append("_");
+				url.append(mWidth).append("x").append(mHeight)
+						.append("x1x95.jpg");
+			} else {
+				url.append(mUrl);
+			}
+		} else {//通过有道裁剪服务器
+			url.append(Constants.IMG_URL_PREFEX);
+			url.append(URLEncoder.encode(mUrl));
+			if (mWidth > 0)
+				url.append("&w=" + mWidth);
+			if (mHeight > 0)
+				url.append("&h=" + mHeight);
+			url.append("&limit=0");
+			url.append("&fill=0");
+			url.append("&gif=0");
+		}
+		HttpRequest request = new HttpRequest(url.toString());
 		request.setStreamCallBack(true);
-		
 		return request;
 	}
-	
+
 	private boolean saveFile(InputStream in, NameValuePair[] pairs) {
 		boolean bDecompress = true;
 		int len = 0;
@@ -123,21 +143,21 @@ public class ImageTransaction extends AsyncTransaction {
 					String name = pairs[i].getName();
 					String value = pairs[i].getValue();
 
-					if (name != null && value != null){
-						if(name.equalsIgnoreCase("Content-Encoding")
-							&& value.equalsIgnoreCase("gzip")) {
-							 PalLog.i("ImageTransaction","saveFile is gzip" );
+					if (name != null && value != null) {
+						if (name.equalsIgnoreCase("Content-Encoding")
+								&& value.equalsIgnoreCase("gzip")) {
+							PalLog.i("ImageTransaction", "saveFile is gzip");
 							in = PalPlatform.gzipDecompress(in);
 						}
-						
-//						if(name.equalsIgnoreCase("content-length")){
-//							try{
-//								len = Integer.parseInt(value);
-//							}catch (NumberFormatException e) {
-//								e.printStackTrace();
-//							}
-//							PalLog.i("ImageTransaction", "content length:" + len);
-//						}
+
+						//						if(name.equalsIgnoreCase("content-length")){
+						//							try{
+						//								len = Integer.parseInt(value);
+						//							}catch (NumberFormatException e) {
+						//								e.printStackTrace();
+						//							}
+						//							PalLog.i("ImageTransaction", "content length:" + len);
+						//						}
 					}
 				}
 			} catch (Exception e) {
@@ -152,61 +172,62 @@ public class ImageTransaction extends AsyncTransaction {
 
 		return false;
 	}
-	
-	private boolean savetoFile(InputStream in, int len){
-		if(!enoughSpaceBySize(Environment.getExternalStorageDirectory().toString(), Error_Catch)){
+
+	private boolean savetoFile(InputStream in, int len) {
+		if (!enoughSpaceBySize(Environment.getExternalStorageDirectory()
+				.toString(), Error_Catch)) {
 			return false;
-		}		
+		}
 		FileOutputStream fos;
 		String path = ImageHelper.getLocalImagePath(mUrl, mWidth, mHeight);
 		File file = new File(path);
-        if(file != null){
+		if (file != null) {
 			File parent = file.getParentFile();
-	        if (!parent.exists()) {
-	            parent.mkdirs();
-	        }
-	        
+			if (!parent.exists()) {
+				parent.mkdirs();
+			}
+
 			try {
 				byte[] buffer = new byte[1024];
 				fos = new FileOutputStream(file);
-	
+
 				while (true) {
-					int size = in.read(buffer);				
+					int size = in.read(buffer);
 					if (size < 0) {
 						break;
 					}
-					if(size > 0)
+					if (size > 0)
 						fos.write(buffer, 0, size);
 				}
 				fos.close();
-				
-				return true;			
+
+				return true;
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-        }
-        if(file != null){
+		}
+		if (file != null) {
 			file.delete();
 		}
 		return false;
 	}
-	/**
-     * 判断当前sd卡的大小是否满足要求的size
-     * @param path
-     * @param size
-     * @return
-     */
-    static public boolean enoughSpaceBySize(String path,long size)
-	{
-		if(TextUtils.isEmpty(path))
-			return true;
-		
-		StatFs statFS = new StatFs(path);
-		if(!path.endsWith(File.separator) )
-			path +=File.separator;
 
-		return (long)statFS.getAvailableBlocks()*statFS.getBlockSize() > size;
+	/**
+	 * 判断当前sd卡的大小是否满足要求的size
+	 * @param path
+	 * @param size
+	 * @return
+	 */
+	static public boolean enoughSpaceBySize(String path, long size) {
+		if (TextUtils.isEmpty(path))
+			return true;
+
+		StatFs statFS = new StatFs(path);
+		if (!path.endsWith(File.separator))
+			path += File.separator;
+
+		return (long) statFS.getAvailableBlocks() * statFS.getBlockSize() > size;
 	}
 }

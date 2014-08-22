@@ -1095,6 +1095,15 @@ public class VopenDatabaseHelper extends SQLiteOpenHelper {
 				+ VopenContentProvider.TABLE_DOWNLOAD_MANAGER + " ADD COLUMN "
 				+ DownloadManagerHelper.PRIORITY + " INTEGER DEFAULT 0");
 	}
+	
+	/**
+	 * 新版本需要重新绑定腾讯微博 
+	 * @param context
+	 */
+	private void removeTencentWBAccount(SQLiteDatabase db){
+		String where = WeiboAccountColumn.C_TYPE_WB + " = " + WeiboAccountColumn.WB_TYPE_TENCENT;
+		db.delete(WeiboAccountColumn.TABLE_NAME, where, null);
+	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -1146,6 +1155,7 @@ public class VopenDatabaseHelper extends SQLiteOpenHelper {
 			//19版本的数据库，主要在下载数据表添加了优先级字段，在播放记录表中添加了播放时间戳字段。
 			addPrioirtyToDownloadManager(db);
 			addPlayDateToPlayRecord(db);
+			removeTencentWBAccount(db);
 		default:
 			break;
 		}
