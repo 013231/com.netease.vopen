@@ -1401,6 +1401,17 @@ public class DBApi {
 				return context.getContentResolver().update(DownloadManagerHelper.getUri(), values,selection, selectionArgs);
 			}
 			/**
+			 * 将所有未完成的下载任务设置为等待状态
+			 * @param context
+			 */
+			public static int updateAllUnfinishedTaskToWaiting(Context context){
+				ContentValues values = new ContentValues();
+				values.put(DownloadManagerHelper.DOWNLOAD_STATUS, EDownloadStatus.DOWNLOAD_WAITTING.value());
+				String selection = DownloadManagerHelper.DOWNLOAD_STATUS + "<>?";
+				String[] selectionArgs = new String[]{ String.valueOf(EDownloadStatus.DOWNLOAD_DONE.value)};
+				return context.getContentResolver().update(DownloadManagerHelper.getUri(), values,selection, selectionArgs);
+			}
+			/**
 			 * 更新公开课下载管理表中某一课程id所对应的数据
 			 * @param context
 			 * @param DownloadInfo
