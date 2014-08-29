@@ -84,7 +84,7 @@ public class FileUtils {
 	}
 	
 	public static boolean isCourseListCacheExist(Context c){
-		File f = new File(c.getCacheDir(), CACHE_FILE_NAME);
+		File f = new File(c.getFilesDir(), CACHE_FILE_NAME);
 		return f.exists();
 	}
 
