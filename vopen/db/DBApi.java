@@ -154,6 +154,7 @@ public class DBApi {
 	 * @param db
 	 * @param Map<type,courseJson>
 	 * @return
+	 * @deprecated
 	 */
 	public static boolean saveNewAllCourse(Context context, ArrayList<CourseInfo> data) {
 		if (data == null ) {

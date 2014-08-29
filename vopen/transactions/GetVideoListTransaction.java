@@ -7,24 +7,20 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import vopen.app.BaseApplication;
-import vopen.db.DBApi;
-import vopen.db.DBApi.CourseInfo;
-import vopen.db.DBApi.CourseType;
-import vopen.db.DBUtils;
 import vopen.protocol.VopenProtocol;
 import vopen.protocol.VopenServiceCode;
+import vopen.tools.FileUtils;
 import android.text.TextUtils;
 
-import com.netease.vopen.pal.Constants;
+import com.netease.vopen.app.VopenApp;
 import common.framework.http.HttpRequest;
 import common.framework.task.TransactionEngine;
 import common.pal.PalLog;
 import common.util.NameValuePair;
-import common.util.Util;
 
 public class GetVideoListTransaction extends BaseTransaction {
 	private static final String TAG = "GetVideoListTransaction";
+
 	public static final int NOTIFY_STEP_BEGIN = 20;
 	public static final int NOTIFY_STEP_GET_DATA = 40;
 	public static final int NOTIFY_STEP_SAVE_DATA = 60;
@@ -43,9 +39,9 @@ public class GetVideoListTransaction extends BaseTransaction {
 	public void onResponseSuccess(String response, NameValuePair[] pairs) {
 		PalLog.v(TAG, "onResponseSuccess");
 		notifyMessage(VopenServiceCode.TRANSACTION_SUCCESS,
-				createResult(NOTIFY_STEP_GET_DATA, null));//更新进度
+				createResult(NOTIFY_STEP_GET_DATA, null));// 更新进度
 		long requestEnd = System.currentTimeMillis();
-		PalLog.d(TAG, "数据返回共花费时间:"+(requestEnd-startTime));
+		PalLog.d(TAG, "数据返回共花费时间:" + (requestEnd - startTime));
 		saveAndFormatData(response);
 		endTime = System.currentTimeMillis();
 		PalLog.d(TAG, "总共花费的时间:" + (endTime - startTime));
@@ -61,7 +57,7 @@ public class GetVideoListTransaction extends BaseTransaction {
 	public void onTransact() {
 		if (!isCancel()) {
 			notifyMessage(VopenServiceCode.TRANSACTION_SUCCESS,
-					createResult(NOTIFY_STEP_BEGIN, null));//更新进度
+					createResult(NOTIFY_STEP_BEGIN, null));// 更新进度
 			HttpRequest httpRequest = VopenProtocol.getInstance()
 					.createGetVListRequest();
 			sendRequest(httpRequest);
@@ -71,22 +67,23 @@ public class GetVideoListTransaction extends BaseTransaction {
 	}
 
 	private void saveAndFormatData(String resultJson) {
-		boolean isLocal = Util.isStringEmpty(resultJson);
+		boolean isLocal = TextUtils.isEmpty(resultJson);
 		if (isLocal) {
 			PalLog.d(TAG, "从本地读取！");
-			resultJson = DBUtils.getLocalCourseByType(
-					BaseApplication.getAppInstance(), CourseType.DATA_TYPE_ALL);
+			// 为了避免在2.x的机器出现读取数据库异常的情况，我们把大列表放到一个临时文件中
+			resultJson = FileUtils.readCourseListFromCache(VopenApp.getAppInstance(), TAG);
 			if (TextUtils.isEmpty(resultJson)) {
-				PalLog.e(TAG, "本地无数据！");
+				PalLog.e(TAG, "本地缓存文件为空！");
 				notifyError(VopenServiceCode.GET_VIDEO_NO_DATA, null);
 				return;
 			} else {
 				notifyMessage(VopenServiceCode.TRANSACTION_SUCCESS,
-						createResult(NOTIFY_STEP_GET_DATA, null));//更新进度
+						createResult(NOTIFY_STEP_GET_DATA, null));// 更新进度
+				
 			}
 		}
 		List<vopen.response.CourseInfo> allDataList = new ArrayList<vopen.response.CourseInfo>();
-		//开始解析数据
+		// 开始解析数据
 		long start = System.currentTimeMillis();
 		try {
 			JSONArray courseArray = new JSONArray(resultJson);
@@ -96,7 +93,7 @@ public class GetVideoListTransaction extends BaseTransaction {
 				obj = courseArray.getJSONObject(i);
 				vopen.response.CourseInfo info = new vopen.response.CourseInfo(
 						obj);
-				if (Util.isStringEmpty(info.type))
+				if (TextUtils.isEmpty(info.type))
 					continue;
 				allDataList.add(info);
 			}
@@ -104,19 +101,17 @@ public class GetVideoListTransaction extends BaseTransaction {
 					createResult(NOTIFY_STEP_SAVE_DATA, null));// 更新进度
 			// toutuString = toutuArray.toString();
 			long end = System.currentTimeMillis();
-			PalLog.d(TAG, "解析数据所用时间："+(end - start));
-			
+			PalLog.d(TAG, "解析数据所用时间：" + (end - start));
+
 			long start2 = System.currentTimeMillis();
-			//开始保存数据
+			// 开始保存数据到缓存文件
 			if (!isLocal) {
-				ArrayList<CourseInfo> data = new ArrayList<CourseInfo>();
-				addToList(data, Constants.DATA_TYPE_ALL, resultJson);
-				DBApi.saveNewAllCourse(BaseApplication.getAppInstance(), data);
+				FileUtils.writeCourseListToCache(VopenApp.getAppInstance(), resultJson, TAG);
 			}
 			long end2 = System.currentTimeMillis();
-			PalLog.d(TAG, "保存数据到数据库所用时间："+(end2- start2));
+			PalLog.d(TAG, "保存数据到缓存文件所用时间：" + (end2 - start2));
 		} catch (JSONException e) {
-			e.printStackTrace();
+			PalLog.e(TAG, "解析列表数据失败");
 			notifyError(VopenServiceCode.ERR_DATA_PARSE, null);
 		}
 		notifyMessage(
@@ -133,16 +128,5 @@ public class GetVideoListTransaction extends BaseTransaction {
 		return obj;
 	}
 
-	/**
-	 * 
-	 */
-	private void addToList(ArrayList<CourseInfo> list, String type,
-			String jsonStr) {
-
-		CourseInfo tempInfo = new CourseInfo();
-		tempInfo.mType = type;
-		tempInfo.mContent = jsonStr;
-		list.add(tempInfo);
-	}
 
 }

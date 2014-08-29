@@ -37,7 +37,6 @@ import android.os.Environment;
 import android.preference.PreferenceManager;
 
 import com.netease.util.PDEEngine;
-import com.netease.vopen.pal.Constants;
 import common.pal.PalLog;
 import common.util.StringUtil;
 import common.util.Util;
@@ -67,7 +66,7 @@ public class VopenDatabaseHelper extends SQLiteOpenHelper {
 
 		//        clear(db);
 
-		//所有数据的json表
+		//所有数据的json表，这个表现在已经不用了！
 		db.execSQL("CREATE TABLE IF NOT EXISTS "
 				+ VopenContentProvider.TABLE_All_DTTA + " ("
 				+ "_id INTEGER PRIMARY KEY,"
@@ -1098,11 +1097,17 @@ public class VopenDatabaseHelper extends SQLiteOpenHelper {
 	
 	/**
 	 * 新版本需要重新绑定腾讯微博 
-	 * @param context
 	 */
 	private void removeTencentWBAccount(SQLiteDatabase db){
 		String where = WeiboAccountColumn.C_TYPE_WB + " = " + WeiboAccountColumn.WB_TYPE_TENCENT;
 		db.delete(WeiboAccountColumn.TABLE_NAME, where, null);
+	}
+	
+	/**
+	 * 删除所有课程表的数据
+	 */
+	private void truncateAllDataTable(SQLiteDatabase db){
+		db.delete(VopenContentProvider.TABLE_All_DTTA, null, null);
 	}
 
 	@Override
@@ -1156,6 +1161,9 @@ public class VopenDatabaseHelper extends SQLiteOpenHelper {
 			addPrioirtyToDownloadManager(db);
 			addPlayDateToPlayRecord(db);
 			removeTencentWBAccount(db);
+		case 19:
+			//20版本的数据库，不再需要TABLE_All_DTTA这个表，把其中的数据删掉
+			truncateAllDataTable(db);
 		default:
 			break;
 		}

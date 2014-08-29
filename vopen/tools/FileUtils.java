@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
@@ -11,7 +12,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
+import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,6 +29,7 @@ import android.os.Environment;
 import android.util.Log;
 
 import com.netease.vopen.pal.Constants;
+import common.pal.PalLog;
 
 public class FileUtils {
 
@@ -33,6 +37,56 @@ public class FileUtils {
 			.getExternalStorageDirectory() + "/netease/vopen/download/";
 	public static final String datafilepath = "/sdcard/netease/vopen/datafile/";
 	public static final String datafilename = "V1OPEN6TEMP3";
+	//加入所有课程列表的cache支持
+	private static final String CACHE_FILE_NAME = "all_course_list";
+	
+	public static String readCourseListFromCache(Context c, String TAG) {
+		FileInputStream fin = null;
+		BufferedReader br = null;
+		try {
+			fin = c.openFileInput(CACHE_FILE_NAME);
+			br = new BufferedReader(new InputStreamReader(fin, Charset.forName("utf-8")));
+			StringBuilder sb = new StringBuilder();
+			String line = null;
+			while ((line = br.readLine()) != null) {
+				sb.append(line);
+			}
+			return sb.toString();
+		} catch (FileNotFoundException e) {
+			PalLog.e(TAG, "本地缓存文件不存在");
+			return null;
+		} catch (IOException e) {
+			PalLog.e(TAG, "读取缓存时io异常");
+			return null;
+		}
+		finally{
+			if (br != null){
+				try {
+					br.close();
+				} catch (IOException e) {
+				}
+			}
+		}
+	}
+	
+	public static void writeCourseListToCache(Context c, String resultJson, String TAG){
+		FileOutputStream fout = null;
+		try {
+			 fout =  c.openFileOutput(CACHE_FILE_NAME, 0);
+			 BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fout, Charset.forName("utf-8")));
+			 bw.write(resultJson);
+			 bw.close();
+		} catch (FileNotFoundException e) {
+			PalLog.e(TAG, e.getLocalizedMessage());
+		}catch (IOException e){
+			PalLog.e(TAG, "写入缓存错误");
+		}
+	}
+	
+	public static boolean isCourseListCacheExist(Context c){
+		File f = new File(c.getCacheDir(), CACHE_FILE_NAME);
+		return f.exists();
+	}
 
 	public static long getFileSizes(File f) throws Exception {// 取得文件大小
 		long s = 0;

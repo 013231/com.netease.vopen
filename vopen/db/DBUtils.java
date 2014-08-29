@@ -52,6 +52,7 @@ public class DBUtils {
 	 * @param context
 	 * @param type
 	 * @return 课程json
+	 * @deprecated
 	 */
 	public static String getLocalCourseByType(Context context, String type) {
 		String rst = null;
@@ -65,6 +66,12 @@ public class DBUtils {
 		return rst;
 	}
 	
+	/**
+	 * 
+	 * @param context
+	 * @return
+	 * @deprecated
+	 */
 	public static boolean isAllCourseDataExist(Context context){
 		boolean ret = false;
 		Cursor cur = DBApi.queryCourseByType(context, CourseType.DATA_TYPE_ALL, null);

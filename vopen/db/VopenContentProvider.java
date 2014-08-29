@@ -55,7 +55,7 @@ public class VopenContentProvider extends BaseContentProvider {
     	/**type*/
     	public static final String COURSE_TYPE = "update_type";
     	/**===================数据库字段==================*/
-    	
+   	
         public static Uri getUri() {
             return Uri.parse("content://" + VopenContentProvider.AUTHORITY + "/"
                     + TABLE_All_DTTA);
