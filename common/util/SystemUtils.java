@@ -248,9 +248,10 @@ public class SystemUtils {
 	
 	/**
 	 * 获取所有sdcard剩余空间 单位byte
+	 * @throws InterruptedException 
 	 * 
 	 */
-	public static long readAllSDCardRemainSize(Context context) {
+	public static long readAllSDCardRemainSize(Context context) throws InterruptedException {
 		long remain = 0;
 		List<File> list = FileUtils.getWritableSDs(context);
 		for (File f : list) {

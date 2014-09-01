@@ -507,7 +507,7 @@ public class FileUtils {
 //	public static int DOWNLOAD_FILE_TYPE_SUB_2 = 2;
 
 	public static String getSavedDownloadVideoPath(Context context, String courseId,
-			int videoIndex, boolean isComplete) {
+			int videoIndex, boolean isComplete) throws InterruptedException {
 		List<File> list = getWritableSDs(context);
 		String suffix = getVideoSuffix(isComplete);
 		for (int i = 0; i < list.size(); i++) {
@@ -531,9 +531,10 @@ public class FileUtils {
 	 * @param isComplete
 	 * @param fuzzyMatching 模糊匹配，是否返回课程相同，但url地址已改变的字幕
 	 * @return
+	 * @throws InterruptedException 
 	 */
 	public static String getSavedDownloadSubPath(Context context, String courseId,
-			int videoIndex, int subType, String url, boolean isComplete, boolean fuzzyMatching) {
+			int videoIndex, int subType, String url, boolean isComplete, boolean fuzzyMatching) throws InterruptedException {
 		List<File> list = getWritableSDs(context);
 		String suffix = getSubSuffix(isComplete);
 		int urlHash = url.hashCode();
@@ -566,8 +567,9 @@ public class FileUtils {
 	 * 删除该课程所有字幕，完成/未完成，包含url/不包含url
 	 * @param courseId
 	 * @param videoId
+	 * @throws InterruptedException 
 	 */
-	public static void deleteSubFile(Context context, String courseId, int videoId){
+	public static void deleteSubFile(Context context, String courseId, int videoId) throws InterruptedException{
 		List<File> list = getWritableSDs(context);
 		for (int i = 0; i < list.size(); i++) {
 			File sdRoot = list.get(i);
@@ -673,7 +675,13 @@ public class FileUtils {
 		return false;
 	}
 
-	public static List<File> getWritableSDs(Context context) {
+	/**
+	 * 获取Android系统中所有的
+	 * @param context
+	 * @return
+	 * @throws InterruptedException
+	 */
+	public static List<File> getWritableSDs(Context context) throws InterruptedException {
 		List<File> writableFiles = new ArrayList<File>();
 //		File mnt = new File("/mnt");
 //		if (mnt.exists()) {
@@ -744,7 +752,7 @@ public class FileUtils {
 		return ret;
 	}
 	
-	public static HashSet<String> getExternalMounts2(Context context) {
+	public static HashSet<String> getExternalMounts2(Context context) throws InterruptedException {
 	    final HashSet<String> out = new HashSet<String>();
 	    
 	    String path = null; 
@@ -756,9 +764,8 @@ public class FileUtils {
 	    if(addExtraSdcards(context, out, path)){
 	    	return out;
 	    }
-	    
-	    String reg = ".* (vfat|ntfs|exfat|fat32|fuse) .*rw.*";
-	    try {
+	    try{
+		    String reg = ".* (vfat|ntfs|exfat|fat32|fuse) .*rw.*";
 	        final Process process = new ProcessBuilder().command("mount").redirectErrorStream(true).start();
 	        process.waitFor();
 	        BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -792,9 +799,9 @@ public class FileUtils {
 		            }
 		        }
 	        }
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
+        }catch(IOException e){
+        	e.printStackTrace();
+        }
         return out;
 	}
 

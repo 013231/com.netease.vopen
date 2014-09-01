@@ -239,15 +239,21 @@ public class DBUtils {
      * @param cid
      * @param sid
      * @return filename 如果不存在，返回null
+	 * @throws InterruptedException 
      */
-    public static String isLocalFileExist(Context context, String courseId,int videoId) {
+    public static String isLocalFileExist(Context context, String courseId,int videoId){
         String filename = null;
         Cursor c = DBApi.queryDownloadByCourseIDAndPnumber(context, courseId, videoId,null);
         if(c !=null){
             if(c.moveToFirst()){
                 int status = c.getInt(c.getColumnIndex(DownloadManagerHelper.DOWNLOAD_STATUS));
                 if(status == 1){
-                String path = FileUtils.getSavedDownloadVideoPath(context, courseId, videoId, true);
+                String path = "";
+				try {
+					path = FileUtils.getSavedDownloadVideoPath(context, courseId, videoId, true);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
                 Log.i("download_path", path);
                     if(FileUtils.isFileExit(path))
                         filename = path;
@@ -476,8 +482,15 @@ public class DBUtils {
                 info.mCourse_name = c.getString(c.getColumnIndex(DownloadManagerHelper.COURSE_NAME));
                 info.mCourse_pnumber = c.getInt(c.getColumnIndex(DownloadManagerHelper.COURSE_PNUMBER));
                 info.mDownload_status = EDownloadStatus.DOWNLOAD_DONE;
-                boolean exist = FileUtils.isFileExit(FileUtils.getSavedDownloadVideoPath(context, info.mCourse_id, info.mCourse_pnumber, true));
-                if (exist)list.add(info);
+                String file = "";
+                try {
+                	file = FileUtils.getSavedDownloadVideoPath(context, info.mCourse_id, info.mCourse_pnumber, true);
+                }catch (InterruptedException e){
+                	e.printStackTrace();
+                }
+                boolean exist = FileUtils.isFileExit(file);
+                if (exist)
+                	list.add(info);
         	}
             c.close();
         }
@@ -772,7 +785,12 @@ public class DBUtils {
         		long size = cur.getLong(cur.getColumnIndex(DownloadManagerHelper.TOTAL_SIZE));
 				String course_id = cur.getString(cur.getColumnIndex(DownloadManagerHelper.COURSE_PLID));
 				int video_id = cur.getInt(cur.getColumnIndex(DownloadManagerHelper.COURSE_PNUMBER));
-				String path = FileUtils.getSavedDownloadVideoPath(context,course_id, video_id, false);
+				String path = "";
+				try {
+					path = FileUtils.getSavedDownloadVideoPath(context,course_id, video_id, false);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 				totalsize += size; 
 				if(FileUtils.isFileExit(path)) {
 					File file =  new File(path);
@@ -1599,15 +1617,18 @@ public static List<CourseInfo> searchVideo(List<CourseInfo> orglist,String query
 	            if(syncDb){//pad版db处理不同，已在ui处理
 	            	DBApi.deleteDownloadCourseIDAndPnumber(context, courseId, videoId);
 	            }
-	            //同时删除文件
-	            FileUtils.getSavedDownloadVideoPath(context,courseId, videoId, true);
-	            String path = FileUtils.getSavedDownloadVideoPath(context,courseId, videoId, true);
-                File f = new File(path);
-                FileUtils.deleteFile(f);
-                f = new File(FileUtils.getSavedDownloadVideoPath(context,courseId, videoId, false));
-                FileUtils.delete(f);
-                //同时删除字幕文件 add by echo_chen 2012-11-22
-            	FileUtils.deleteSubFile(context,courseId, videoId);
+				try {
+					//同时删除文件
+					String path = FileUtils.getSavedDownloadVideoPath(context,courseId, videoId, true);
+					File f = new File(path);
+	                FileUtils.deleteFile(f);
+	                f = new File(FileUtils.getSavedDownloadVideoPath(context,courseId, videoId, false));
+	                FileUtils.delete(f);
+	                //同时删除字幕文件 add by echo_chen 2012-11-22
+	            	FileUtils.deleteSubFile(context,courseId, videoId);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
                 DownloadPrefHelper.removeThreadInfo(context, courseId, Integer.valueOf(selectedFileString[1]));
 	        }
 	    }
