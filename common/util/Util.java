@@ -528,22 +528,38 @@ public class Util {
 		return productVersion;
 	}
 	
+	private static String mChannelId = null;
+	public static String getAppChannelId(Context context){
+		if (TextUtils.isEmpty(mChannelId)){
+			mChannelId = getApplicationMetaInfo(context, "Channel");
+		}
+		return mChannelId;
+	}
+	
+	private static String mDAKey = null;
+	public static String getDAKey(Context context){
+		if (TextUtils.isEmpty(mDAKey)){
+			mDAKey = getApplicationMetaInfo(context, "DAKEY");
+		}
+		return mDAKey;
+	}
+	
 	public static String getNumberVersion(Context context) {
-		 if (null == context) {
-		        PalLog.w("Util","invalid input when calling getClientVersion()");
-		        return "";
-		    }
-		    String clientVer = "0.0.0";
-		    try {
-		        clientVer = context.getPackageManager()
-		                   .getPackageInfo(context.getPackageName(), 0).versionName;
-		    } catch (NameNotFoundException e) {
-		        PalLog.w("Util", "failed to get version");
-		    }
-		    if (null != clientVer){
-		    	clientVer = clientVer.trim();
-		    }
-		    return clientVer;
+		if (null == context) {
+			PalLog.w("Util", "invalid input when calling getClientVersion()");
+			return "";
+		}
+		String clientVer = "0.0.0";
+		try {
+			clientVer = context.getPackageManager().getPackageInfo(
+					context.getPackageName(), 0).versionName;
+		} catch (NameNotFoundException e) {
+			PalLog.w("Util", "failed to get version");
+		}
+		if (null != clientVer) {
+			clientVer = clientVer.trim();
+		}
+		return clientVer;
 	}
 
 	 /**
