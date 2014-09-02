@@ -19,8 +19,9 @@ public interface DownloadListener {
 	 * 下载任务进行中
 	 * @param id 任务的id
 	 * @param offset 当前已下载的大小
+	 * @param total 文件的总大小
 	 */
-	public void onDownloadProgeress(int id, int offset);
+	public void onDownloadProgeress(int id, int offset, int total);
 
 	/**
 	 * 任务结束，成功或失败

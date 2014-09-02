@@ -166,10 +166,10 @@ public class BaseApplication extends Application  implements DownloadListener{
 	}
 
 	@Override
-	public void onDownloadProgeress(int id, int offset) {
+	public void onDownloadProgeress(int id, int offset, int total) {
 		synchronized (mListDownloadListener) {
 			for(DownloadListener listener: mListDownloadListener){
-				listener.onDownloadProgeress(id, offset);
+				listener.onDownloadProgeress(id, offset, total);
 			}
 		}
 	}
