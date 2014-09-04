@@ -1407,8 +1407,8 @@ public class DBApi {
 			public static int updateAllUnfinishedTaskToWaiting(Context context){
 				ContentValues values = new ContentValues();
 				values.put(DownloadManagerHelper.DOWNLOAD_STATUS, EDownloadStatus.DOWNLOAD_WAITTING.value());
-				String selection = DownloadManagerHelper.DOWNLOAD_STATUS + "<>?";
-				String[] selectionArgs = new String[]{ String.valueOf(EDownloadStatus.DOWNLOAD_DONE.value)};
+				String selection = DownloadManagerHelper.DOWNLOAD_STATUS + "<> ? " + " AND "+ DownloadManagerHelper.DOWNLOAD_STATUS + "<> ?";
+				String[] selectionArgs = new String[]{ String.valueOf(EDownloadStatus.DOWNLOAD_DONE.value),String.valueOf(EDownloadStatus.DOWNLOAD_DOING.value)};
 				return context.getContentResolver().update(DownloadManagerHelper.getUri(), values,selection, selectionArgs);
 			}
 			/**

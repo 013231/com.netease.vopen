@@ -116,25 +116,6 @@ public class BaseApplication extends Application  implements DownloadListener{
 		return (int)mDownloadCurrrentSize.get();
 	}
 	
-	private static String mDownloadCurrentName;
-	private static int    mDownloadCurrentNumber;
-	public static String getmDownloadCurrentName() {
-		return mDownloadCurrentName;
-	}
-
-	public static void setmDownloadCurrentName(String mDownloadCurrentName) {
-		BaseApplication.mDownloadCurrentName = mDownloadCurrentName;
-	}
-
-	public static int getmDownloadCurrentNumber() {
-		return mDownloadCurrentNumber;
-	}
-
-	public static void setmDownloadCurrentNumber(int mDownloadCurrentNumber) {
-		BaseApplication.mDownloadCurrentNumber = mDownloadCurrentNumber;
-	}
-	
-
 	protected List<DownloadListener> mListDownloadListener;
 	public void addDownloadListener(DownloadListener listener){
 		synchronized (mListDownloadListener) {
