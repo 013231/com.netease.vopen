@@ -675,6 +675,13 @@ public class FileUtils {
 		return false;
 	}
 
+	//缓存sd卡
+	private static List<File> allWriteableSDs = null; 
+	
+	public static void resetWritableSDList(){
+		allWriteableSDs = null;
+	}
+	
 	/**
 	 * 获取Android系统中所有的
 	 * @param context
@@ -682,18 +689,10 @@ public class FileUtils {
 	 * @throws InterruptedException
 	 */
 	public static List<File> getWritableSDs(Context context) throws InterruptedException {
+		if (allWriteableSDs != null){
+			return allWriteableSDs;
+		}
 		List<File> writableFiles = new ArrayList<File>();
-//		File mnt = new File("/mnt");
-//		if (mnt.exists()) {
-//			File[] children = mnt.listFiles();
-//			if (children != null) {
-//				for (int i = 0; i < children.length; i++) {
-//					if (children[i].isDirectory() && children[i].canWrite()) {
-//						writableFiles.add(children[i]);
-//					}
-//				}
-//			}
-//		}
 		// 读取所有SD卡信息
 		HashSet<String> set = getExternalMounts2(context);
 		Iterator<String> it = set.iterator();
@@ -707,6 +706,7 @@ public class FileUtils {
 			writableFiles.clear();
 			writableFiles.add(f);
 		}
+		allWriteableSDs = writableFiles;
 		return writableFiles;
 	}
 	
