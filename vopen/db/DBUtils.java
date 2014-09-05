@@ -1633,42 +1633,5 @@ public static List<CourseInfo> searchVideo(List<CourseInfo> orglist,String query
 	        }
 	    }
 	}
-	/**
-	 * 设置对应id项选择状态
-	 * @param collecList
-	 * @param videoList
-	 */
-	public static int addUpdate4Favor(List<CollecinfoItem> collecList,List<CourseInfo> videoList){
-		int allupnum = 0;
-//		List<CourseInfo> videoList = DBUtils.getAllVideoList(DBUtils.getLocalCourseByType(this, Constants.DATA_TYPE_ALL),
-//				0 , -1);
-		for (CollecinfoItem response : collecList) {
-			String plid = response.mCollectInfo.mCourse_id;
-			if ("".equals(plid))
-				continue;
-			for (CourseInfo pm : videoList) {
-				String pplid = pm.plid;
-				if ("".equals(pplid))
-					continue;
-				
-				if (pplid.equals(plid)) { // 课程对应
-					int onum = response.mCollectInfo.mCourse_translatecount;
-					int nnum = pm.updated_playcount;
-					
-					int u_num = nnum - onum;
-					
-//					u_num = Math.abs(u_num);
-					if(u_num > 0){
-						response.mCollectInfo.mCourse_new_translate_num = u_num;
-						
-						allupnum += u_num;
-					}
 
-					break;
-				}
-			}
-
-		}
-		return allupnum;
-	}
 }

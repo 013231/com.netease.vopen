@@ -495,6 +495,28 @@ public class DBApi {
 		}
 		
 		/**
+		 * 更新收藏的翻译总数和新翻译数。
+		 * @param context
+		 * @param bLogin
+		 * @param plid
+		 * @param translateNum
+		 * @param newTranslateNum
+		 */
+		public static void updateTranslateNumAndNewTranslateNum(Context context, boolean bLogin, String plid, int translateNum, int newTranslateNum){
+			ContentValues values = new ContentValues();
+			values.put(VopenMyCollectHelper.COURSE_TRANSLATECOUNT, translateNum);
+			values.put(VopenMyCollectHelper.COURSE_NEW_TRANSLATE_NUM, newTranslateNum);
+			if(bLogin){
+				context.getContentResolver().update(VopenMyCollectHelper.getUri(), values, 
+						VopenMyCollectHelper.COURSE_PLID + " =? ", new String[]{plid});
+			}else{
+				context.getContentResolver().update(VopenNoLoginMyCollectHelper.getUri(), values, 
+						VopenMyCollectHelper.COURSE_PLID + " =? ", new String[]{plid});
+			}
+		}
+		
+		
+		/**
 		 * 查询公开课已经登录的收藏表中的项
 		 * @param context
 		 * @param selection
