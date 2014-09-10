@@ -1328,6 +1328,20 @@ public class DBApi {
 	    	public long mTotal_size;//课程总大小,单位byte
 	    	public long mDownload_size;//课程已下载大小
 	    	public boolean mIsSelected;//课程是否被选中: 未选中false，被选中true 
+	    	
+	    	@Override
+	    	public boolean equals(Object o) {
+	    		if (this == o){
+	    			return true;
+	    		}
+	    		if (!(o instanceof DownLoadInfo)){
+	    			return false;
+	    		}else{
+	    			DownLoadInfo info = (DownLoadInfo) o;
+	    			return m_id == null ? info.m_id == null : m_id.equals(info.m_id);
+	    		}
+	    	}
+	    	
 		}
 		 public enum EDownloadStatus
 		  {
