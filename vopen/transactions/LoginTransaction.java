@@ -122,11 +122,13 @@ public class LoginTransaction extends BaseTransaction{
     	info.mIs_login = true;
     	DBUtils.setLoginAccount(BaseApplication.getAppInstance(), info);
 	}
+    
     /**
      * 登录失败
      */
 	private void loginFail(){
 		PalLog.i(TAG, "loginFail");
-		DBApi.cleartLoginAccount(BaseApplication.getAppInstance());
+		DBApi.deleteAllCollect(BaseApplication.getAppInstance(), mUserName);
+		DBApi.deleteAccountByUserAccount(BaseApplication.getAppInstance(), mUserName);
     }
 }

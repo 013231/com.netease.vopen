@@ -390,9 +390,9 @@ public class DBUtils {
      * @param context
      * @return List<CollecinfoItem>
      */
-    public static List<CollecinfoItem> getAllCollectItemLogin(Context context){
+    public static List<CollecinfoItem> getAllCollectItemLoginByUser(Context context, String user_id){
         List<CollecinfoItem> list = new ArrayList<CollecinfoItem>();
-        Cursor c = DBApi.queryCollectAll(context, null,null);
+        Cursor c = DBApi.queryCollectAllByUser(context,user_id, null,null);
         if(c != null){
             for(c.moveToFirst(); !c.isAfterLast(); c.moveToNext()){
             	CollecinfoItem infoItem = new CollecinfoItem();

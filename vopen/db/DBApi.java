@@ -560,6 +560,9 @@ public class DBApi {
 			if(null == user_id) {
 				return null;
 			}
+			if(null == sort) {
+				sort = VopenMyCollectHelper.DATA_TIME + " DESC";
+			}
 			String selection = VopenMyCollectHelper.USER_ID + "=?";
 			String[] selectionArgs = new String[] {user_id};
 			Cursor c = context.getContentResolver().query(VopenMyCollectHelper.getUri(),
