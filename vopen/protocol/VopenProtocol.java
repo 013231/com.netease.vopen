@@ -33,12 +33,12 @@ public class VopenProtocol {
 	//	private String SERVER_DOMAIN = "http://so.v.163.com";//原北京
 	private static final String SERVER_DOMAIN = "http://mobile.open.163.com";//现杭州
 	//	private String SERVER_DOMAIN = "http://so.open.163.com";//测试服
-	//	private static final String SERVER_DOMAIN = "http://114.113.202.204";//测试服务器
+//		private static final String SERVER_DOMAIN = "http://114.113.202.204";//测试服务器
 
 	private static final String URL_C_OPEN_DOMAIN = "http://c.open.163.com";
 	//	private static final String URL_C_OPEN_DOMAIN = "http://220.181.9.130";//测试服务器
 
-	//	private static boolean TEST = true;
+//		private static boolean TEST = true;
 
 	private static boolean TEST = false;
 
@@ -61,6 +61,8 @@ public class VopenProtocol {
 	private static final String URL_REGISTER = "http://c.3g.163.com/urs/reg";
 	//关于
 	private static final String URL_ABOUT = "http://v.163.com/special/open_roster/";
+	//版本检查测试url
+//	private static final String URL_UPDATE_CHECK = "http://v.163.com/special/openmobile/android_update_notice_test.html";
 	//版本检查
 	private static final String URL_UPDATE_CHECK = "http://v.163.com/special/openmobile/android_update_notice.html";
 	//头图广告
