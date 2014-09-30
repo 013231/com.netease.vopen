@@ -174,6 +174,11 @@ public abstract class BaseTransaction extends AsyncTransaction {
 	 */
 	public static final int TRANSACTION_GET_HEAD_ADS = 0x0 << 8 | 0x27;
 	
+	/**
+	 * 获取主页的所有推荐
+	 */
+	public static final int TRANSACTION_GET_HOME_RECOMMEDN_INFO = 0x0 << 8 | 0x28;
+	
 	protected int getHttpErrorCode(int code,int type) {
 
 		switch (code) {	

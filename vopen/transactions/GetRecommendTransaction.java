@@ -18,12 +18,12 @@ import common.framework.task.TransactionEngine;
 import common.pal.PalLog;
 import common.util.NameValuePair;
 import common.util.StringUtil;
-import common.util.Util;
 
 /**
  * 获取个性化推荐内容
+ * 
  * @author ymsong
- *
+ * 
  */
 public class GetRecommendTransaction extends BaseTransaction {
 	/**
@@ -45,30 +45,42 @@ public class GetRecommendTransaction extends BaseTransaction {
 
 	@Override
 	public void onResponseSuccess(String response, NameValuePair[] pairs) {
-		if (!Util.isStringEmpty(response)) {
-			// 写入本地preference
-			SharedPreferences sp = BaseApplication.getAppInstance()
-					.getSharedPreferences(RECOMMEND_FILE, 0);
-			sp.edit().putString(RECOMMEND_KEY, response).commit();
-			try {
-				JSONObject jsoresult = new JSONObject(response);
-				JSONArray jsonarr = jsoresult.getJSONArray("result");
-				List<RecommendItem> list = new LinkedList<RecommendItem>();
-				if (StringUtil.checkObj(jsonarr)) {
-					int length = jsonarr.length();
-					for (int index = 0; index < length; index++) {
-						RecommendItem info = new RecommendItem(
-								jsonarr.getString(index));
-						list.add(info);
-					}
-				}
-				notifyMessage(VopenServiceCode.TRANSACTION_SUCCESS, list);
-				return;
-			} catch (JSONException e1) {
-				e1.printStackTrace();
-			}
+		// 写入本地preference
+		SharedPreferences sp = BaseApplication.getAppInstance()
+				.getSharedPreferences(RECOMMEND_FILE, 0);
+		sp.edit().putString(RECOMMEND_KEY, response).commit();
+		List<RecommendItem> list = parseResponse(response);
+		if (list != null && list.size() > 0) {
+			notifyMessage(VopenServiceCode.TRANSACTION_SUCCESS, list);
+		} else {
+			notifyResponseError(VopenServiceCode.TRANSACTION_FAIL, null);
 		}
-		notifyResponseError(VopenServiceCode.TRANSACTION_FAIL, null);
+	}
+
+	private static List<RecommendItem> parseResponse(String response) {
+		List<RecommendItem> list = new LinkedList<RecommendItem>();
+		try {
+			JSONObject jsoresult = new JSONObject(response);
+			JSONArray jsonarr = jsoresult.getJSONArray("result");
+			if (StringUtil.checkObj(jsonarr)) {
+				int length = jsonarr.length();
+				for (int index = 0; index < length; index++) {
+					RecommendItem info = new RecommendItem(
+							jsonarr.getString(index));
+					list.add(info);
+				}
+			}
+		} catch (JSONException e1) {
+		}
+		return list;
+	}
+	
+	public static List<RecommendItem> getCache(){
+		SharedPreferences sp = BaseApplication.getAppInstance()
+				.getSharedPreferences(RECOMMEND_FILE, 0);
+		String json = sp.getString(RECOMMEND_KEY, "");
+		List<RecommendItem> list = parseResponse(json);
+		return list;
 	}
 
 	@Override
@@ -77,26 +89,9 @@ public class GetRecommendTransaction extends BaseTransaction {
 		SharedPreferences sp = BaseApplication.getAppInstance()
 				.getSharedPreferences(RECOMMEND_FILE, 0);
 		String json = sp.getString(RECOMMEND_KEY, "");
-		if (json != null) {
-			// 解析后发送
-			JSONArray jsonarr;
-			try {
-				JSONObject jsoresult = new JSONObject(json);
-				jsonarr = jsoresult.getJSONArray("result");
-				List<RecommendItem> list = new LinkedList<RecommendItem>();
-				if (StringUtil.checkObj(jsonarr)) {
-					int length = jsonarr.length();
-					for (int index = 0; index < length; index++) {
-						RecommendItem info = new RecommendItem(
-								jsonarr.getString(index));
-						list.add(info);
-					}
-				}
-				notifyMessage(VopenServiceCode.TRANSACTION_SUCCESS, list);
-			} catch (JSONException e) {
-				notifyError(VopenServiceCode.TRANSACTION_FAIL, null);
-				e.printStackTrace();
-			}
+		List<RecommendItem> list = parseResponse(json);
+		if (list != null && list.size() > 0) {
+			notifyMessage(VopenServiceCode.TRANSACTION_SUCCESS, list);
 		} else {
 			notifyError(VopenServiceCode.TRANSACTION_FAIL, null);
 		}

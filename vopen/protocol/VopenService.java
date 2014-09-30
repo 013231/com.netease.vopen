@@ -14,6 +14,7 @@ import vopen.transactions.FeedBackTransaction;
 import vopen.transactions.FeedBackTransactionNew;
 import vopen.transactions.GetAboutInfoTransaction;
 import vopen.transactions.GetHeadAdTransation;
+import vopen.transactions.GetHomeRecommendInfoTransation;
 import vopen.transactions.GetHotWordsTransaction;
 import vopen.transactions.GetPushCourseTransaction;
 import vopen.transactions.GetRecommAppTransaction;
@@ -531,6 +532,14 @@ public class VopenService {
 	 */
 	public int doGetUserBindInfo (String usrid){
 		GetUserBindInfoTrascation transaction = new GetUserBindInfoTrascation(mTransactionEngine, usrid);
+		return startTransaction(transaction, mGroupListener);
+	}
+	
+	/**
+	 * 获取首页的所有推荐信息
+	 */
+	public int doGetHomeRecommendInfos(){
+		GetHomeRecommendInfoTransation transaction = new GetHomeRecommendInfoTransation(mTransactionEngine);
 		return startTransaction(transaction, mGroupListener);
 	}
 }

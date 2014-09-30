@@ -1159,7 +1159,7 @@ public static List<CourseInfo> searchVideo(List<CourseInfo> orglist,String query
 								String.valueOf(secitonid));
 					}
 				} else {
-					strRecord = String.format("看到第" + secitonid + "课 %s",
+					strRecord = String.format("看到第" + secitonid + "集 %s",
 							DateUtils.formatElapsedTime(position));
 				}
 			}
@@ -1175,7 +1175,7 @@ public static List<CourseInfo> searchVideo(List<CourseInfo> orglist,String query
 	
 	private static String translatePlayRecord(String sectionid, int position,
 			int all) {
-		String rst = "看到第" + sectionid + "课 %s";
+		String rst = "看到第" + sectionid + "集 %s";
 		String timeStr = DateUtils.formatElapsedTime(position);
 		return String.format(rst, timeStr);
 	}

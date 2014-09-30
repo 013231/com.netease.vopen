@@ -14,6 +14,7 @@ import vopen.response.OneWholeCommentBuildingInfo;
 import vopen.response.PostCommentStatus;
 import vopen.response.PushList;
 import vopen.response.RecommAppInfo;
+import vopen.response.RecommendInfo;
 import vopen.response.RecommendItem;
 import vopen.response.SyncItemInfo;
 import vopen.response.UiEventTransport;
@@ -117,6 +118,10 @@ public class VopenCallBack {
 	 */
 	public void onGetHeadAdInfo(int transactionId, HeadAd[] ads){}
 	
+	/**
+	 * 获取首页的信息成功
+	 */
+	public void onGetHomeRecommendInfos(int transactionId, List<List<RecommendInfo>> infos){}
 	
 	/*************************************************************
 	 * error
@@ -206,6 +211,11 @@ public class VopenCallBack {
 	 * 获取头图广告信息失败
 	 */
 	public void onGetHeadAdInfoError(int transactionId, int errCode, String err){}
+	
+	/**
+	 * 获取首页推荐信息失败
+	 */
+	public void onGetHomeRecommendInfosError(int transactionId, int errCode, String err){}
 	
 	/*********************************************************
 	 * 评论相关回调
@@ -319,6 +329,9 @@ public class VopenCallBack {
 		case BaseTransaction.TRANSACTION_GET_HEAD_ADS:
 			onGetHeadAdInfoError(transactionId, errCode, errStr);
 			break;
+		case BaseTransaction.TRANSACTION_GET_HOME_RECOMMEDN_INFO:
+			onGetHomeRecommendInfosError(transactionId, errCode, errStr);
+			break;
 		}
 	}
 	private void onSuccess(int type, int transactionId, Object obj) {
@@ -406,6 +419,9 @@ public class VopenCallBack {
 			break;
 		case BaseTransaction.TRANSACTION_GET_HEAD_ADS:
 			onGetHeadAdInfo(transactionId, (HeadAd[]) obj);
+			break;
+		case BaseTransaction.TRANSACTION_GET_HOME_RECOMMEDN_INFO:
+			onGetHomeRecommendInfos(transactionId, (List<List<RecommendInfo>>)obj);
 			break;
 		}
 	}
