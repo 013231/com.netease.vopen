@@ -1155,7 +1155,7 @@ public static List<CourseInfo> searchVideo(List<CourseInfo> orglist,String query
 					if (secitonid == playcount) {
 						strRecord = "已看完";
 					} else {
-						strRecord = String.format("第%s课已看完",
+						strRecord = String.format("第%s集已看完",
 								String.valueOf(secitonid));
 					}
 				} else {
