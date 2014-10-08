@@ -2,7 +2,10 @@ package vopen.response;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
+/**
+ * 猜你喜欢所使用的数据结构
+ * @author netease
+ */
 public class RecommendItem {
 	
 	public String itemId;

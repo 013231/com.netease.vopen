@@ -14,6 +14,7 @@ import vopen.response.OneWholeCommentBuildingInfo;
 import vopen.response.PostCommentStatus;
 import vopen.response.PushList;
 import vopen.response.RecommAppInfo;
+import vopen.response.RecommendColumn;
 import vopen.response.RecommendInfo;
 import vopen.response.RecommendItem;
 import vopen.response.SyncItemInfo;
@@ -121,7 +122,7 @@ public class VopenCallBack {
 	/**
 	 * 获取首页的信息成功
 	 */
-	public void onGetHomeRecommendInfos(int transactionId, List<List<RecommendInfo>> infos){}
+	public void onGetHomeRecommendInfos(int transactionId, List<RecommendColumn> infos){}
 	
 	/*************************************************************
 	 * error
@@ -421,7 +422,7 @@ public class VopenCallBack {
 			onGetHeadAdInfo(transactionId, (HeadAd[]) obj);
 			break;
 		case BaseTransaction.TRANSACTION_GET_HOME_RECOMMEDN_INFO:
-			onGetHomeRecommendInfos(transactionId, (List<List<RecommendInfo>>)obj);
+			onGetHomeRecommendInfos(transactionId, (List<RecommendColumn>)obj);
 			break;
 		}
 	}

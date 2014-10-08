@@ -1,26 +1,24 @@
 package vopen.response;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * 首页的所有grid使用的数据结构
- * 
+ * 首页的轮播图以及除了猜你喜欢之外，其它栏目中的grid使用的数据结构。
  * @author netease
  */
 public class RecommendInfo {
 
 	// #################Type常量#################
 	// 头图
-	public static final Integer TYPE_MOBILE_TOP_PICTURE = 0;
+	public static final int TYPE_MOBILE_TOP_PICTURE = 0;
 	// 小编推荐
-	public static final Integer TYPE_MOBILE_EDITOR_RECOMMEND = 1;
+	public static final int TYPE_MOBILE_EDITOR_RECOMMEND = 1;
 	// 赏课
-	public static final Integer TYPE_MOBILE_BBC_RECOMMEND = 2;
+	public static final int TYPE_MOBILE_BBC_RECOMMEND = 2;
 	// TED
-	public static final Integer TYPE_MOBILE_TED_RECOMMEND = 3;
+	public static final int TYPE_MOBILE_TED_RECOMMEND = 3;
 	// 讲座
-	public static final Integer TYPE_MOBILE_TALK_RECOMMEND = 4;
+	public static final int TYPE_MOBILE_TALK_RECOMMEND = 4;
 
 	// #################Content type常量#################
 	public static final int CONTENT_TYPE_PLAY = 0;
@@ -41,15 +39,6 @@ public class RecommendInfo {
 	public String tagColor;
 	public String tagColorBg;
 	public String top;
-
-	public RecommendInfo(String jsonStr) {
-		try {
-			JSONObject jso = new JSONObject(jsonStr);
-			parseJson(jso);
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-	}
 
 	public RecommendInfo(JSONObject jsonObj) {
 		parseJson(jsonObj);
