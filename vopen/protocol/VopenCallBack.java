@@ -122,7 +122,7 @@ public class VopenCallBack {
 	/**
 	 * 获取首页的信息成功
 	 */
-	public void onGetHomeRecommendInfos(int transactionId, List<RecommendColumn> infos){}
+	public void onGetHomeRecommendInfos(int transactionId, Object[] infos){}
 	
 	/*************************************************************
 	 * error
@@ -422,7 +422,7 @@ public class VopenCallBack {
 			onGetHeadAdInfo(transactionId, (HeadAd[]) obj);
 			break;
 		case BaseTransaction.TRANSACTION_GET_HOME_RECOMMEDN_INFO:
-			onGetHomeRecommendInfos(transactionId, (List<RecommendColumn>)obj);
+			onGetHomeRecommendInfos(transactionId, (Object[])obj);
 			break;
 		}
 	}

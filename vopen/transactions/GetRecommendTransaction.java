@@ -7,6 +7,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.netease.vopen.pal.ErrorToString;
+
 import vopen.app.BaseApplication;
 import vopen.protocol.VopenProtocol;
 import vopen.protocol.VopenServiceCode;
@@ -45,15 +47,16 @@ public class GetRecommendTransaction extends BaseTransaction {
 
 	@Override
 	public void onResponseSuccess(String response, NameValuePair[] pairs) {
-		// 写入本地preference
-		SharedPreferences sp = BaseApplication.getAppInstance()
-				.getSharedPreferences(RECOMMEND_FILE, 0);
-		sp.edit().putString(RECOMMEND_KEY, response).commit();
 		List<RecommendItem> list = parseResponse(response);
 		if (list != null && list.size() > 0) {
+			// 缓存写入本地preference
+			SharedPreferences sp = BaseApplication.getAppInstance()
+					.getSharedPreferences(RECOMMEND_FILE, 0);
+			sp.edit().putString(RECOMMEND_KEY, response).commit();
 			notifyMessage(VopenServiceCode.TRANSACTION_SUCCESS, list);
 		} else {
-			notifyResponseError(VopenServiceCode.TRANSACTION_FAIL, null);
+			notifyResponseError(VopenServiceCode.ERR_DATA_PARSE,
+					ErrorToString.getString(VopenServiceCode.ERR_DATA_PARSE));
 		}
 	}
 
@@ -74,8 +77,8 @@ public class GetRecommendTransaction extends BaseTransaction {
 		}
 		return list;
 	}
-	
-	public static List<RecommendItem> getCache(){
+
+	public static List<RecommendItem> getCache() {
 		SharedPreferences sp = BaseApplication.getAppInstance()
 				.getSharedPreferences(RECOMMEND_FILE, 0);
 		String json = sp.getString(RECOMMEND_KEY, "");

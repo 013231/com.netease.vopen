@@ -9,10 +9,13 @@ import org.json.JSONObject;
 
 import vopen.protocol.VopenProtocol;
 import vopen.protocol.VopenServiceCode;
+import vopen.response.CourseInfo;
 import vopen.tools.FileUtils;
 import android.text.TextUtils;
 
 import com.netease.vopen.app.VopenApp;
+import com.netease.vopen.pal.ErrorToString;
+
 import common.framework.http.HttpRequest;
 import common.framework.task.TransactionEngine;
 import common.pal.PalLog;
@@ -37,20 +40,47 @@ public class GetVideoListTransaction extends BaseTransaction {
 
 	@Override
 	public void onResponseSuccess(String response, NameValuePair[] pairs) {
-		PalLog.v(TAG, "onResponseSuccess");
+		PalLog.d(TAG, "返回数据成功");
 		notifyMessage(VopenServiceCode.TRANSACTION_SUCCESS,
 				createResult(NOTIFY_STEP_GET_DATA, null));// 更新进度
 		long requestEnd = System.currentTimeMillis();
 		PalLog.d(TAG, "数据返回共花费时间:" + (requestEnd - startTime));
-		saveAndFormatData(response);
+		List<CourseInfo> allDataList = parseResponse(response);
+		if (allDataList != null && allDataList.size() > 0) {
+			// 保存数据到缓存文件
+			long start2 = System.currentTimeMillis();
+			FileUtils.writeCourseListToCache(VopenApp.getAppInstance(),
+					response, TAG);
+			long end2 = System.currentTimeMillis();
+			PalLog.d(TAG, "保存数据到缓存文件所用时间：" + (end2 - start2));
+
+			notifyMessage(VopenServiceCode.TRANSACTION_SUCCESS,
+					createResult(NOTIFY_STEP_DATA_OK, allDataList));
+		} else {
+			notifyResponseError(VopenServiceCode.ERR_DATA_PARSE,
+					ErrorToString.getString(VopenServiceCode.ERR_DATA_PARSE));
+		}
 		endTime = System.currentTimeMillis();
 		PalLog.d(TAG, "总共花费的时间:" + (endTime - startTime));
 	}
 
 	@Override
 	public void onResponseError(int errCode, Object err) {
-		notifyError(errCode, null);
-		saveAndFormatData(null);
+		PalLog.d(TAG, "返回数据失败，尝试读取本地缓存");
+		String resultJson = FileUtils.readCourseListFromCache(
+				VopenApp.getAppInstance(), TAG);
+		if (TextUtils.isEmpty(resultJson)) {
+			PalLog.e(TAG, "本地缓存文件为空！");
+			notifyError(VopenServiceCode.GET_VIDEO_NO_DATA, null);
+			return;
+		}
+		List<CourseInfo> allDataList = parseResponse(resultJson);
+		if (allDataList != null && allDataList.size() > 0) {
+			notifyMessage(VopenServiceCode.TRANSACTION_SUCCESS,
+					createResult(NOTIFY_STEP_DATA_LOCAL, allDataList));
+		} else {
+			notifyError(VopenServiceCode.GET_VIDEO_NO_DATA, null);
+		}
 	}
 
 	@Override
@@ -66,23 +96,8 @@ public class GetVideoListTransaction extends BaseTransaction {
 		}
 	}
 
-	private void saveAndFormatData(String resultJson) {
-		boolean isLocal = TextUtils.isEmpty(resultJson);
-		if (isLocal) {
-			PalLog.d(TAG, "从本地读取！");
-			// 为了避免在2.x的机器出现读取数据库异常的情况，我们把大列表放到一个临时文件中
-			resultJson = FileUtils.readCourseListFromCache(VopenApp.getAppInstance(), TAG);
-			if (TextUtils.isEmpty(resultJson)) {
-				PalLog.e(TAG, "本地缓存文件为空！");
-				notifyError(VopenServiceCode.GET_VIDEO_NO_DATA, null);
-				return;
-			} else {
-				notifyMessage(VopenServiceCode.TRANSACTION_SUCCESS,
-						createResult(NOTIFY_STEP_GET_DATA, null));// 更新进度
-				
-			}
-		}
-		List<vopen.response.CourseInfo> allDataList = new ArrayList<vopen.response.CourseInfo>();
+	private static List<CourseInfo> parseResponse(String resultJson) {
+		List<CourseInfo> allDataList = new ArrayList<CourseInfo>();
 		// 开始解析数据
 		long start = System.currentTimeMillis();
 		try {
@@ -91,42 +106,31 @@ public class GetVideoListTransaction extends BaseTransaction {
 			JSONObject obj = null;
 			for (int i = 0; i < len; i++) {
 				obj = courseArray.getJSONObject(i);
-				vopen.response.CourseInfo info = new vopen.response.CourseInfo(
-						obj);
+				CourseInfo info = new CourseInfo(obj);
 				if (TextUtils.isEmpty(info.type))
 					continue;
 				allDataList.add(info);
 			}
-			notifyMessage(VopenServiceCode.TRANSACTION_SUCCESS,
-					createResult(NOTIFY_STEP_SAVE_DATA, null));// 更新进度
-			// toutuString = toutuArray.toString();
 			long end = System.currentTimeMillis();
 			PalLog.d(TAG, "解析数据所用时间：" + (end - start));
-
-			long start2 = System.currentTimeMillis();
-			// 开始保存数据到缓存文件
-			if (!isLocal) {
-				FileUtils.writeCourseListToCache(VopenApp.getAppInstance(), resultJson, TAG);
-			}
-			long end2 = System.currentTimeMillis();
-			PalLog.d(TAG, "保存数据到缓存文件所用时间：" + (end2 - start2));
 		} catch (JSONException e) {
-			PalLog.e(TAG, "解析列表数据失败");
-			notifyError(VopenServiceCode.ERR_DATA_PARSE, null);
+			PalLog.e(TAG, "解析数据失败");
 		}
-		notifyMessage(
-				VopenServiceCode.TRANSACTION_SUCCESS,
-				createResult(isLocal ? NOTIFY_STEP_DATA_LOCAL
-						: NOTIFY_STEP_DATA_OK, allDataList));
+		return allDataList;
+	}
+	
+	public static List<CourseInfo> getCache(){
+		String resultJson = FileUtils.readCourseListFromCache(
+				VopenApp.getAppInstance(), TAG);
+		List<CourseInfo> allDataList = parseResponse(resultJson);
+		return allDataList;
 	}
 
-	private Object[] createResult(int step,
-			List<vopen.response.CourseInfo> allInfo) {
+	private Object[] createResult(int step, List<CourseInfo> allInfo) {
 		Object[] obj = new Object[2];
 		obj[0] = step;
 		obj[1] = allInfo;
 		return obj;
 	}
-
 
 }

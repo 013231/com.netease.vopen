@@ -25,7 +25,9 @@ import common.util.NameValuePair;
  * 
  */
 public class GetHomeRecommendInfoTransation extends BaseTransaction {
-
+	
+	public static final String FLAG_LOCAL = "local";
+	
 	private static final String FILE_NAME = "home";
 	private static final String KEY = "json";
 
@@ -35,14 +37,14 @@ public class GetHomeRecommendInfoTransation extends BaseTransaction {
 
 	@Override
 	public void onResponseSuccess(String response, NameValuePair[] pairs) {
-		List<RecommendColumn> recommendColumns = null;
-		// 缓存在preference中
-		SharedPreferences sp = BaseApplication.getAppInstance()
-				.getSharedPreferences(FILE_NAME, 0);
-		sp.edit().putString(KEY, response).commit();
-		recommendColumns = parseResponse(response);
+		List<RecommendColumn> recommendColumns = parseResponse(response);
 		if (recommendColumns != null && recommendColumns.size() > 0) {
-			notifyMessage(VopenServiceCode.TRANSACTION_SUCCESS, recommendColumns);
+			// 缓存在preference中
+			SharedPreferences sp = BaseApplication.getAppInstance()
+					.getSharedPreferences(FILE_NAME, 0);
+			sp.edit().putString(KEY, response).commit();
+			notifyMessage(VopenServiceCode.TRANSACTION_SUCCESS, new Object[] {
+					recommendColumns, "net" });
 		} else {
 			notifyError(VopenServiceCode.ERR_DATA_PARSE,
 					ErrorToString.getString(VopenServiceCode.ERR_DATA_PARSE));
@@ -60,7 +62,7 @@ public class GetHomeRecommendInfoTransation extends BaseTransaction {
 			List<RecommendColumn> recommendColumns = parseResponse(json);
 			if (recommendColumns != null && recommendColumns.size() > 0) {
 				notifyMessage(VopenServiceCode.TRANSACTION_SUCCESS,
-						recommendColumns);
+						new Object[] { recommendColumns, FLAG_LOCAL});
 			} else {
 				notifyError(VopenServiceCode.ERR_DATA_PARSE,
 						ErrorToString
