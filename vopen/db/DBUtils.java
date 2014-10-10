@@ -1030,7 +1030,8 @@ public static List<CourseInfo> searchVideo(List<CourseInfo> orglist,String query
 			String type = "" + orglist.get(index).type;
 			String title = "" + orglist.get(index).title;
 			String subtitle = "" + orglist.get(index).subtitle;
-			if (search(type, query) || search(title, query) || search(subtitle, query)) {
+			String tags = orglist.get(index).tags;
+			if (search(type, query) || search(title, query) || search(subtitle, query) || search(tags, query)) {
 				if (Constants._TAG_head.equals(type) || Constants._TAG_hot.equals(type))
 					continue;
 //				Log.i(TAG, "type:" + type + "|title:" + title + "|subtitle:" + subtitle);
