@@ -37,9 +37,10 @@ public class VopenProtocol {
 	// "http://114.113.202.204";//测试服务器
 
 	private static final String URL_C_OPEN_DOMAIN = "http://c.open.163.com";
-//	 private static final String URL_C_OPEN_DOMAIN = "http://220.181.9.130";//测试服务器
+	// private static final String URL_C_OPEN_DOMAIN =
+	// "http://220.181.9.130";//测试服务器
 
-	// private static boolean TEST = true;
+//	private static boolean TEST = true;
 
 	private static boolean TEST = false;
 
@@ -63,8 +64,7 @@ public class VopenProtocol {
 	// 关于
 	private static final String URL_ABOUT = "http://v.163.com/special/open_roster/";
 	// 版本检查测试url
-	// private static final String URL_UPDATE_CHECK =
-	// "http://v.163.com/special/openmobile/android_update_notice_test.html";
+//	private static final String URL_UPDATE_CHECK = "http://v.163.com/special/openmobile/android_update_notice_test.html";
 	// 版本检查
 	private static final String URL_UPDATE_CHECK = "http://v.163.com/special/openmobile/android_update_notice.html";
 	// 头图广告
@@ -76,6 +76,10 @@ public class VopenProtocol {
 	// 视频列表
 	private static final String URL_VIDIO_LIST = SERVER_DOMAIN
 			+ "/movie/2/getPlaysForAndroid.htm";
+	// TODO 测试服务器连接
+	// private static final String URL_VIDIO_LIST =
+	// "http://223.252.197.247/getPlaysForAndroid.htm?pltype=2";
+
 	// 添加收藏
 	private static final String URL_ADDSTORE = SERVER_DOMAIN
 			+ "/movie/store/addstore.do";
@@ -113,12 +117,13 @@ public class VopenProtocol {
 			+ "/push/oauth.do";
 
 	/* 2014-9新增 */
-	//获取主页的推荐信息
-//	private static final String URL_GET_HOME_RECOMMEND_INFO = URL_C_OPEN_DOMAIN
-//			+ "/mobile/recommend/v1.do?mt=aphone";
-	private static final String URL_GET_HOME_RECOMMEND_INFO = "http://223.252.197.246/mobile/recommend/v1.do?mt=aphone";
-	
-	
+	// 获取主页的推荐信息
+	private static final String URL_GET_HOME_RECOMMEND_INFO = URL_C_OPEN_DOMAIN
+			+ "/mobile/recommend/v1.do?mt=aphone";
+	// TODO
+	// private static final String URL_GET_HOME_RECOMMEND_INFO =
+	// "http://223.252.197.246/mobile/recommend/v1.do?mt=aphone";
+
 	private static VopenProtocol mInstance;
 
 	VopenProtocol() {
@@ -621,13 +626,13 @@ public class VopenProtocol {
 		request.addHeaderField(HTTP.USER_AGENT, sUserAgent);
 		return request;
 	}
-	
-	public HttpRequest createGetHomeRecommendInfoRequest(){
+
+	public HttpRequest createGetHomeRecommendInfoRequest() {
 		HttpRequest request = new HttpRequest(URL_GET_HOME_RECOMMEND_INFO,
 				HttpRequest.METHOD_GET);
 		request.addHeaderField(HTTP.USER_AGENT, sUserAgent);
 		request.addHeaderField("Accept-Encoding", "gzip, deflate");
 		return request;
 	}
-	
+
 }
