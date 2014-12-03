@@ -31,23 +31,28 @@ import common.util.Util;
 public class VopenProtocol {
 	// 服务器域名
 	// private String SERVER_DOMAIN = "http://so.v.163.com";//原北京
-	private static final String SERVER_DOMAIN = "http://mobile.open.163.com";// 现杭州
+//	private static final String SERVER_DOMAIN = "http://mobile.open.163.com";// 现杭州
 	// private String SERVER_DOMAIN = "http://so.open.163.com";//测试服
-	// private static final String SERVER_DOMAIN =
-	// "http://114.113.202.204";//测试服务器
+	 private static final String SERVER_DOMAIN = "http://114.113.202.204";//测试服务器
 
 	private static final String URL_C_OPEN_DOMAIN = "http://c.open.163.com";
 	// private static final String URL_C_OPEN_DOMAIN =
 	// "http://220.181.9.130";//测试服务器
 
-//	private static boolean TEST = true;
+	//测试推送服务器
+	public static final String PUSH_HOST = "123.58.180.233";
+	//线上推送服务器
+//	public static final String PUSH_HOST = "android.push.126.net";
+	public static final int PUSH_PORT = 6002;
+	
+	private static boolean TEST = true;
 
-	private static boolean TEST = false;
+//	private static boolean TEST = false;
 
 	private final static String sUserAgent = "NETS_Android";
 	private final static int sTimeout = 10 * 1000;
 	private final static int PUSH_TIME_OUT = 11 * 60 * 1000;// 推送协议的超时时间
-
+	
 	// 反馈产品ID
 	private static String PRODUCT_ID = "17001";
 
