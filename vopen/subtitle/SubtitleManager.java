@@ -1,6 +1,8 @@
 package vopen.subtitle;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeMap;
 
 import android.util.Log;
@@ -62,22 +64,26 @@ public class SubtitleManager {
 	 */
 	public SRT getCurrentSubtitle(long currentPosition){
 		long t1 = System.currentTimeMillis();
-		SRT srt = null;
 		Iterator<Integer> keys = mSrtMap.keySet().iterator();
+		SRT srt = null;
 		//通过while循环遍历比较
 		while (keys.hasNext()) {
 			Integer key = keys.next();
 			SRT srtbean = mSrtMap.get(key);
-			if (currentPosition >= srtbean.getBeginTime()
-			&& currentPosition <= srtbean.getEndTime()) {
-				srt = srtbean;
-				break;//找到后就没必要继续遍历下去，节约资源
+			if (srtbean.getBeginTime() <= currentPosition){
+				if (srtbean.getEndTime() >= currentPosition){
+					return srtbean;
+				}else{
+					continue;
+				}
+			}
+			else{
+				break;
 			}
 		}
 		long t2 = System.currentTimeMillis();
 		if(DEBUG){
 			Log.d(TAG, "Search subtitle time:" + (t2 - t1));
-			if(srt != null)Log.d(TAG, "SRT:" + srt.getSrtBodyCh() +"|"+ srt.getSrtBodyEn());
 		}
 		return srt;
 	}
