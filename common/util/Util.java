@@ -512,21 +512,21 @@ public class Util {
 		return domain;
 	}
 	
-	private static String productKey = null;
-	public static String getPushProductKey(Context context){
-		if (productKey == null){
-			productKey = getApplicationMetaInfo(context, "NETEASE_PRODUCT_KEY");
-		}
-		return productKey;
-	}
+//	private static String productKey = null;
+//	public static String getPushProductKey(Context context){
+//		if (productKey == null){
+//			productKey = getApplicationMetaInfo(context, "NETEASE_PRODUCT_KEY");
+//		}
+//		return productKey;
+//	}
 	
-	private static String productVersion = null;
-	public static String getPushProductVersion(Context context){
-		if (productVersion == null){
-			productVersion = getApplicationMetaInfo(context, "NETEASE_PRODUCT_VERSION");
-		}
-		return productVersion;
-	}
+//	private static String productVersion = null;
+//	public static String getPushProductVersion(Context context){
+//		if (productVersion == null){
+//			productVersion = getApplicationMetaInfo(context, "NETEASE_PRODUCT_VERSION");
+//		}
+//		return productVersion;
+//	}
 	
 	private static String mChannelId = null;
 	public static String getAppChannelId(Context context){
