@@ -18,6 +18,13 @@ public class GetUserBindInfoTrascation extends BaseTransaction {
 	
 	public GetUserBindInfoTrascation(TransactionEngine transMgr, String userid) {
 		super(transMgr, TRANSACTION_GET_USER_BIND_INFO);
+		//增加去掉@163.com的内容
+		if (userid != null){
+			int index = userid.indexOf("@163.com");
+			if (index != -1){
+				userid = userid.substring(0, index);
+			}
+		}
 		mUserId = userid;
 	}
 
