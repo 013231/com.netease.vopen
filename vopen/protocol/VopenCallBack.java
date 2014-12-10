@@ -7,6 +7,7 @@ import vopen.response.BindAccountInfo;
 import vopen.response.CheckVersionInfo;
 import vopen.response.CommentBuildingListInfo;
 import vopen.response.CommentCount;
+import vopen.response.CourseAdInfo;
 import vopen.response.CourseInfo;
 import vopen.response.HeadAd;
 import vopen.response.HotWordInfo;
@@ -124,6 +125,11 @@ public class VopenCallBack {
 	 */
 	public void onGetHomeRecommendInfos(int transactionId, Object[] infos){}
 	
+	/**
+	 * 获取课程的广告成功
+	 */
+	public void onGetCourseAdInfo(int transactionId, CourseAdInfo info){}
+	
 	/*************************************************************
 	 * error
 	 *************************************************************/
@@ -217,6 +223,11 @@ public class VopenCallBack {
 	 * 获取首页推荐信息失败
 	 */
 	public void onGetHomeRecommendInfosError(int transactionId, int errCode, String err){}
+	
+	/**
+	 * 获取课程的广告失败
+	 */
+	public void onGetCourseAdInfoError(int transactionId,int errCode, String err){}
 	
 	/*********************************************************
 	 * 评论相关回调
@@ -333,6 +344,10 @@ public class VopenCallBack {
 		case BaseTransaction.TRANSACTION_GET_HOME_RECOMMEDN_INFO:
 			onGetHomeRecommendInfosError(transactionId, errCode, errStr);
 			break;
+		case BaseTransaction.TRANSACTION_TYPE_GET_VIDEO_AD:
+			onGetCourseAdInfoError(transactionId, errCode, errStr);
+			break;
+		
 		}
 	}
 	private void onSuccess(int type, int transactionId, Object obj) {
@@ -423,6 +438,9 @@ public class VopenCallBack {
 			break;
 		case BaseTransaction.TRANSACTION_GET_HOME_RECOMMEDN_INFO:
 			onGetHomeRecommendInfos(transactionId, (Object[])obj);
+			break;
+		case BaseTransaction.TRANSACTION_TYPE_GET_VIDEO_AD:
+			onGetCourseAdInfo(transactionId, (CourseAdInfo)obj);
 			break;
 		}
 	}

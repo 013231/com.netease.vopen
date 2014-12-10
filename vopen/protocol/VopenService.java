@@ -13,6 +13,7 @@ import vopen.transactions.DelStoreTransaction;
 import vopen.transactions.FeedBackTransaction;
 import vopen.transactions.FeedBackTransactionNew;
 import vopen.transactions.GetAboutInfoTransaction;
+import vopen.transactions.GetCourseAdTransaction;
 import vopen.transactions.GetHeadAdTransation;
 import vopen.transactions.GetHomeRecommendInfoTransation;
 import vopen.transactions.GetHotWordsTransaction;
@@ -540,6 +541,14 @@ public class VopenService {
 	 */
 	public int doGetHomeRecommendInfos(){
 		GetHomeRecommendInfoTransation transaction = new GetHomeRecommendInfoTransation(mTransactionEngine);
+		return startTransaction(transaction, mGroupListener);
+	}
+	
+	/**
+	 * 获取某个视频的广告信息 
+	 */
+	public int doGetCourseAdInfo(String plid){
+		GetCourseAdTransaction transaction = new GetCourseAdTransaction(mTransactionEngine, plid);
 		return startTransaction(transaction, mGroupListener);
 	}
 }

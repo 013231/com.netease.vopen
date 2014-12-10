@@ -33,10 +33,14 @@ public abstract class BaseTransaction extends AsyncTransaction {
 	public static final int TRANSACTION_TYPE_GET_VIDEO_LIST = 0x0 << 8 | 0x03;
 	
 	/**
-	 * 获取视频详情
+	 * 获取课程详情
 	 */
 	public static final int TRANSACTION_TYPE_GET_VIDEO_DETAIL = 0x0 << 8 | 0x04;
 	
+	/**
+	 * 获取课程详情中的广告信息
+	 */
+	public static final int TRANSACTION_TYPE_GET_VIDEO_AD = 0x0 << 8 | 0x05;
 	
 	/**
 	 * 取得版本信息

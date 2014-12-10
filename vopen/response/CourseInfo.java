@@ -42,6 +42,10 @@ public class CourseInfo implements Parcelable {
 	public String source;// 2012.11新增,标识来源
     public int 		mHitCount;
     public long		mTimestamp;
+    /*2014-12 新增字段*/
+    public int preAdvSource;//0表示没有广告，1表示从dj那边取，10表示从广告sdk取
+    public int midAdvSource;
+    public int postAdvSource;
     
 	public CourseInfo() {
 
@@ -84,6 +88,9 @@ public class CourseInfo implements Parcelable {
 		mHitCount 		= jso.optInt("hits");
 		mTimestamp 		= jso.optLong("ltime");
 		JSONArray jsa = jso.optJSONArray("videoList");
+		preAdvSource = jso.optInt("preAdvSource");
+		midAdvSource = jso.optInt("midAdvSource");
+		postAdvSource = jso.optInt("postAdvSource");
 		try {
 			if (jsa != null && jsa.length() > 0) {
 				for (int i = 0; i < jsa.length(); i++) {
