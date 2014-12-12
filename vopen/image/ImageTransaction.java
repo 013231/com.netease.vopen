@@ -27,14 +27,16 @@ public class ImageTransaction extends AsyncTransaction {
 	int mWidth;
 	int mHeight;
 	String mUrl;
+	String mImageCacheDir;
 	public static final int Error_Catch = 5 * 1024 * 1024; //当sd卡剩余空间小于该值时，将不往缓存中保存数据
 
 	protected ImageTransaction(TransactionEngine transMgr, String url,
-			int width, int height) {
+			int width, int height, String cacheDir) {
 		super(transMgr, 0);
 		mWidth = width;
 		mHeight = height;
 		mUrl = url;
+		mImageCacheDir = cacheDir;
 	}
 
 	@Override
@@ -60,7 +62,7 @@ public class ImageTransaction extends AsyncTransaction {
 		}
 
 		if (b) {
-			String path = ImageHelper.getLocalImagePath(mUrl, mWidth, mHeight);
+			String path = ImageHelper.getLocalImagePath(mUrl, mWidth, mHeight, mImageCacheDir);
 			notifyMessage(0, mType, getId(), path);
 		} else {
 
@@ -87,7 +89,7 @@ public class ImageTransaction extends AsyncTransaction {
 	public void onTransact() {
 		//		PalLog.i("ImageTransaction", "[url]" + mUrl + "|" + mWidth + "x" + mHeight);
 		if (!isCancel()) {
-			String path = ImageHelper.getLocalImagePath(mUrl, mWidth, mHeight);
+			String path = ImageHelper.getLocalImagePath(mUrl, mWidth, mHeight, mImageCacheDir);
 			File file = new File(path);
 			if (file.exists()) {
 				notifyMessage(0, mType, getId(), path);
@@ -179,7 +181,7 @@ public class ImageTransaction extends AsyncTransaction {
 			return false;
 		}
 		FileOutputStream fos;
-		String path = ImageHelper.getLocalImagePath(mUrl, mWidth, mHeight);
+		String path = ImageHelper.getLocalImagePath(mUrl, mWidth, mHeight, mImageCacheDir);
 		File file = new File(path);
 		if (file != null) {
 			File parent = file.getParentFile();

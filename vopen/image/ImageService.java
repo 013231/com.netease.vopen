@@ -96,15 +96,16 @@ public class ImageService implements TransactionListener {
 	 * @param height
 	 * @return 返回事务ID, 如果在缓存里找到图片, 返回id为0
 	 */
-	public int getImage(String url, int width, int height, IBitmapCb cb){
+	public int getImage(String url, int width, int height, IBitmapCb cb, String cacheDir){
 		String file = ImageHelper.getLocalImageName(url, width, height);
 		Bitmap bmp = mCache.get(file);
+		//先从内存缓存中获取
 		if(bmp != null){
 			cb.onGetCacheImage(bmp);
 			return 0;
 		}
 		else{
-			ImageTransaction tx = new ImageTransaction(mTransactionEngine, url, width, height);
+			ImageTransaction tx = new ImageTransaction(mTransactionEngine, url, width, height, cacheDir);
 			startTransaction(tx, this);
 			int missionId = tx.getId();
 			mCbInfos.put(missionId, new BitmapCbInfo(cb, width, height));

@@ -9,9 +9,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.text.TextUtils;
 
-import com.netease.vopen.app.VopenApp;
-import com.netease.vopen.pal.Constants;
-
 public class ImageHelper {
 	 /**
      * <br/>从路径中取得文件名.
@@ -31,12 +28,11 @@ public class ImageHelper {
 		String name = getNameFromPath(fileName);
 		return width + "x" + height + "_" + name;
 	}
-	static String getLocalImagePath(String fileName, int width, int height) {
-		/**
-		 * 修改图片缓存的路径
-		 */
+	
+	/*package*/
+	static String getLocalImagePath(String fileName, int width, int height, String cacheDir) {
 		String fn = getLocalImageName(fileName, width, height);
-		File f = new File(VopenApp.getAppInstance().getExternalCacheDir(), fn);
+		File f = new File(cacheDir, fn);
 		return f.getAbsolutePath();
     }
 	
