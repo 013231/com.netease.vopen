@@ -1,5 +1,7 @@
 package vopen.image;
 
+import java.io.File;
+
 import vopen.tools.FileUtils;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -7,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.text.TextUtils;
 
+import com.netease.vopen.app.VopenApp;
 import com.netease.vopen.pal.Constants;
 
 public class ImageHelper {
@@ -29,7 +32,12 @@ public class ImageHelper {
 		return width + "x" + height + "_" + name;
 	}
 	static String getLocalImagePath(String fileName, int width, int height) {
-    	return Constants.FILE_TMP_IMG + getLocalImageName(fileName, width, height);       
+		/**
+		 * 修改图片缓存的路径
+		 */
+		String fn = getLocalImageName(fileName, width, height);
+		File f = new File(VopenApp.getAppInstance().getExternalCacheDir(), fn);
+		return f.getAbsolutePath();
     }
 	
 	
