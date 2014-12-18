@@ -34,7 +34,7 @@ public class VopenProtocol {
 	// 推送是否测试版本
 	private static boolean TEST_PUSH = true;
 	
-	private static boolean TEST_AD = true;
+	private static boolean TEST_AD = false;
 	
 	// 服务器域名
 	// private String SERVER_DOMAIN = "http://so.v.163.com";//原北京
@@ -143,7 +143,7 @@ public class VopenProtocol {
 	/* 2014-12新增 */
 	private static final String URL_GET_COURSE_AD_INFO = (TEST ? TEST_SERVER_DOMAIN
 			: SERVER_DOMAIN)
-			+ "/adv/mob/play.htm?pid=%s";
+			+ "/v/moblist.htm?pid=%s";
 
 	private static VopenProtocol mInstance;
 
