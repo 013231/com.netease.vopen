@@ -33,9 +33,11 @@ public class VopenProtocol {
 	private static boolean TEST = true;
 	// 推送是否测试版本
 	private static boolean TEST_PUSH = true;
-	
-	private static boolean TEST_AD = false;
-	
+
+	private static boolean TEST_AD = true;
+
+	private static boolean TEST_UPDATE = true;
+
 	// 服务器域名
 	// private String SERVER_DOMAIN = "http://so.v.163.com";//原北京
 	private static final String SERVER_DOMAIN = "http://mobile.open.163.com";// 现杭州
@@ -51,11 +53,10 @@ public class VopenProtocol {
 	public static final int PUSH_PORT = 6002;
 	public static final String PUSH_KEY = TEST_PUSH ? "ff37ee2d15de4dfa9c37ddc771eb299d"
 			: "70f1016e4e0647908fab6145dc1874d1";
-	
-	//广告ID
-	public static final String AD_APP_ID = TEST_AD ? "C0A475D7":"29801EC2";
-	
-	
+
+	// 广告ID
+	public static final String AD_APP_ID = TEST_AD ? "C0A475D7" : "29801EC2";
+
 	// 其他参数
 	private final static String sUserAgent = "NETS_Android";
 	private final static int sTimeout = 10 * 1000;
@@ -76,11 +77,9 @@ public class VopenProtocol {
 	private static final String URL_REGISTER = "http://c.3g.163.com/urs/reg";
 	// 关于
 	private static final String URL_ABOUT = "http://v.163.com/special/open_roster/";
-	// 版本检查测试url
-	// private static final String URL_UPDATE_CHECK =
-	// "http://v.163.com/special/openmobile/android_update_notice_test.html";
 	// 版本检查
-	private static final String URL_UPDATE_CHECK = "http://v.163.com/special/openmobile/android_update_notice.html";
+	private static final String URL_UPDATE_CHECK = TEST_UPDATE ? "http://v.163.com/special/openmobile/android_update_notice_test.html"
+			: "http://v.163.com/special/openmobile/android_update_notice.html";
 	// 头图广告
 	private static final String URL_HEAD_AD = "http://v.163.com/special/openmobile/top_advertise.html";
 	// push信息
