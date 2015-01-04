@@ -96,7 +96,7 @@ public class ImageHelper {
 	 * @return
 	 */
 	/*package*/ 
-	static Bitmap getBitmapFromFileLimitSize(String file, int max) {
+	public static Bitmap getBitmapFromFileLimitSize(String file, int max) {
 		if (file == null)
 			return null;
 		Bitmap bm = null;
