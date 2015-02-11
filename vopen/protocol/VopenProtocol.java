@@ -34,7 +34,7 @@ public class VopenProtocol {
 	// 推送是否测试版本
 	private static boolean TEST_PUSH = true;
 
-	private static boolean TEST_AD = true;
+	public static boolean TEST_AD = true;
 
 	private static boolean TEST_UPDATE = true;
 
