@@ -6,11 +6,9 @@ import org.json.JSONObject;
 import vopen.app.BaseApplication;
 import vopen.protocol.VopenProtocol;
 import vopen.protocol.VopenServiceCode;
-import vopen.response.PublicKey;
 import android.content.SharedPreferences;
 
 import com.netease.loginapi.NEConfig;
-import com.netease.util.RSACoder;
 import com.netease.vopen.pal.ErrorToString;
 import common.framework.http.HttpRequest;
 import common.framework.task.TransactionEngine;
