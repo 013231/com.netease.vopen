@@ -43,9 +43,20 @@ public class CourseInfo implements Parcelable {
     public int 		mHitCount;
     public long		mTimestamp;
     /*2014-12 新增字段*/
-    public int preAdvSource;//0表示没有广告，1表示从dj那边取，10表示从广告sdk取
+    @Deprecated
+    public int preAdvSource;
+    @Deprecated
     public int midAdvSource;
+    @Deprecated
     public int postAdvSource;
+    /*2015-2-6新增*/
+    public int adSource;//0表示没有广告，1表示从dj那边取，10表示从广告sdk取
+    public String adPreCategory;
+    public String adMidCategory;
+    public String adPostCategory;
+    public final static int AD_SOURCE_NONE = 0;
+    public final static int AD_SOURCE_DJ = 1;
+    public final static int AD_SOURCE_BJ = 10;
     
 	public CourseInfo() {
 
@@ -87,10 +98,17 @@ public class CourseInfo implements Parcelable {
 		source = jso.optString("source");
 		mHitCount 		= jso.optInt("hits");
 		mTimestamp 		= jso.optLong("ltime");
-		JSONArray jsa = jso.optJSONArray("videoList");
 		preAdvSource = jso.optInt("preAdvSource");
 		midAdvSource = jso.optInt("midAdvSource");
 		postAdvSource = jso.optInt("postAdvSource");
+		JSONObject adinfo = jso.optJSONObject("ipadPlayAdvInfo");
+		if (adinfo != null){
+			adSource = adinfo.optInt("advSource");
+			adPreCategory = adinfo.optString("advPreId");
+			adMidCategory = adinfo.optString("advMidId");
+			adPostCategory = adinfo.optString("advPosId");
+		}
+		JSONArray jsa = jso.optJSONArray("videoList");
 		try {
 			if (jsa != null && jsa.length() > 0) {
 				for (int i = 0; i < jsa.length(); i++) {
@@ -100,8 +118,10 @@ public class CourseInfo implements Parcelable {
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
+		
 	}
 
+	@Deprecated
 	public JSONObject toJsonObject() {
 		try {
 			JSONObject json = new JSONObject();
