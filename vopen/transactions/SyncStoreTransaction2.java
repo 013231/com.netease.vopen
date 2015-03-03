@@ -85,7 +85,7 @@ public class SyncStoreTransaction2 extends BaseTransaction {
 				// PalLog.d(TAG, "syncDb interval="+(System.currentTimeMillis()-
 				// time) );
 				notifyMessage(VopenServiceCode.TRANSACTION_SUCCESS, list);
-			} else if (code == -10000) { // 自动登录
+			} else if (code == VopenServiceCode.ERR_MOB_TOKEN_INVALID) { // 自动登录
 				if (mResend) {// 如果第二次请求还是返回-10000
 					notifyError(
 							VopenServiceCode.SYNC_FAVORITE_ERR_INNER,
@@ -118,7 +118,7 @@ public class SyncStoreTransaction2 extends BaseTransaction {
 					getTransactionEngine().beginTransaction(tran);
 					mResend = true;
 				}
-			} else if (code == -11111) {
+			} else if (code == VopenServiceCode.ERR_URS_TOKEN_INVALID) {
 				PalLog.d(TAG, "urs token过期，需要重新登录");
 				notifyError(VopenServiceCode.RELOGIN_NEEDED,
 						ErrorToString

@@ -52,7 +52,7 @@ public class DelStoreTransaction2 extends BaseTransaction {
 					}
 					notifyMessage(VopenServiceCode.TRANSACTION_SUCCESS,
 							response);
-				} else if (code == -10000) {// mob token过期，重新获取mob token
+				} else if (code == VopenServiceCode.ERR_MOB_TOKEN_INVALID) {// mob token过期，重新获取mob token
 					if (mResend) {// 第二次请求还是返回-10000，不再进行重试
 						notifyError(
 								VopenServiceCode.DEL_STORE_ERR,
@@ -83,7 +83,7 @@ public class DelStoreTransaction2 extends BaseTransaction {
 						getTransactionEngine().beginTransaction(tran);
 						mResend = true;
 					}
-				} else if (code == -11111) {
+				} else if (code == VopenServiceCode.ERR_URS_TOKEN_INVALID) {
 					PalLog.d(TAG, "urs-token过期，需要重新登录");
 					notifyError(VopenServiceCode.RELOGIN_NEEDED,
 							ErrorToString

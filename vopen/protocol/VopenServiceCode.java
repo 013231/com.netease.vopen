@@ -133,4 +133,14 @@ public class VopenServiceCode {
 	 * 需要重新登录
 	 */
 	public static final int RELOGIN_NEEDED = SERVICE_ERR_CODE + 0x18000;
+	
+	/**
+	 * 服务器返回code=-10000表示mob token过期
+	 */
+	public static final int ERR_MOB_TOKEN_INVALID = -10000;
+	
+	/**
+	 * 服务器返回code=-11111表示urs token过期
+	 */
+	public static final int ERR_URS_TOKEN_INVALID = -11111;
 }
