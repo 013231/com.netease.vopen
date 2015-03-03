@@ -30,13 +30,11 @@ import common.util.Util;
 
 public class VopenProtocol {
 	// 切换是否测试版本
-	private static boolean TEST = true;
+	public static boolean TEST = true;
 	// 推送是否测试版本
-	private static boolean TEST_PUSH = true;
+	public static boolean TEST_PUSH = false;
 
 	public static boolean TEST_AD = true;
-
-	private static boolean TEST_UPDATE = true;
 
 	// 服务器域名
 	// private String SERVER_DOMAIN = "http://so.v.163.com";//原北京
@@ -78,7 +76,7 @@ public class VopenProtocol {
 	// 关于
 	private static final String URL_ABOUT = "http://v.163.com/special/open_roster/";
 	// 版本检查
-	private static final String URL_UPDATE_CHECK = TEST_UPDATE ? "http://v.163.com/special/openmobile/android_update_notice_test.html"
+	private static final String URL_UPDATE_CHECK = TEST ? "http://v.163.com/special/openmobile/android_update_notice_test.html"
 			: "http://v.163.com/special/openmobile/android_update_notice.html";
 	// 头图广告
 	private static final String URL_HEAD_AD = "http://v.163.com/special/openmobile/top_advertise.html";
@@ -89,19 +87,30 @@ public class VopenProtocol {
 	// 视频列表
 	private static final String URL_VIDIO_LIST = (TEST ? TEST_SERVER_DOMAIN
 			: SERVER_DOMAIN) + "/movie/2/getPlaysForAndroid.htm";
-	// TODO 测试服务器连接
-	// private static final String URL_VIDIO_LIST =
-	// "http://223.252.197.247/getPlaysForAndroid.htm?pltype=2";
 
 	// 添加收藏
+	@Deprecated
 	private static final String URL_ADDSTORE = (TEST ? TEST_SERVER_DOMAIN
 			: SERVER_DOMAIN) + "/movie/store/addstore.do";
+
+	private static final String URL_ADDSTORE2 = (TEST ? TEST_URL_C_OPEN_DOMAIN
+			: URL_C_OPEN_DOMAIN)
+			+ "/mob/store/addstore.do";
 	// 删除收藏
+	@Deprecated
 	private static final String URL_DELSTORE = (TEST ? TEST_SERVER_DOMAIN
 			: SERVER_DOMAIN) + "/movie/store/delstore.do";
+	private static final String URL_DELSTORE2 = (TEST ? TEST_URL_C_OPEN_DOMAIN
+			: URL_C_OPEN_DOMAIN)
+			+ "/mob/store/delstore.do";
 	// 收藏同步
+	@Deprecated
 	private static final String URL_SYNCSTORE = (TEST ? TEST_SERVER_DOMAIN
 			: SERVER_DOMAIN) + "/movie/store/syncstore.do";
+
+	private static final String URL_SYNCSTORE2 = (TEST ? TEST_URL_C_OPEN_DOMAIN
+			: URL_C_OPEN_DOMAIN)
+			+ "/mob/store/syncstore.do";
 	// 获取课程
 	private static final String URL_GET_MOVIES = (TEST ? TEST_SERVER_DOMAIN
 			: SERVER_DOMAIN) + "/movie/%s/getMoviesForAndroid.htm";
@@ -143,6 +152,16 @@ public class VopenProtocol {
 	private static final String URL_GET_COURSE_AD_INFO = (TEST ? TEST_SERVER_DOMAIN
 			: SERVER_DOMAIN)
 			+ "/v/moblist.htm?pid=%s";
+
+	/* 2015-2新增 */
+	// 获取用户上传urs-token的rsa公钥
+//	private static final String URL_GET_RSA_PUBLIC_KEY = (TEST ? TEST_URL_C_OPEN_DOMAIN
+//			: URL_C_OPEN_DOMAIN)
+//			+ "/mobile/getPublicKey.do";
+	// 获取mob-token
+	private static final String URL_GET_MOB_TOKEN = (TEST ? TEST_URL_C_OPEN_DOMAIN
+			: URL_C_OPEN_DOMAIN)
+			+ "/auth/mob/logon.do";
 
 	private static VopenProtocol mInstance;
 
@@ -210,6 +229,7 @@ public class VopenProtocol {
 	 * 
 	 * @return
 	 */
+	@Deprecated
 	public HttpRequest createLoginRequest(String username, String pwd) {
 		HttpRequest request = new HttpRequest(URL_LOGIN);
 		request.setRequestMethod(HttpRequest.METHOD_POST);
@@ -265,6 +285,7 @@ public class VopenProtocol {
 	 * @return
 	 * @throws UnsupportedEncodingException
 	 */
+	@Deprecated
 	public HttpRequest createSyncFavoriteRequest(String userId,
 			List<SyncItemInfo> favorites, String cookie)
 			throws UnsupportedEncodingException {
@@ -289,6 +310,33 @@ public class VopenProtocol {
 		request.setHttpEntity(new UrlEncodedFormEntity(pairs, HTTP.UTF_8));
 		// 该句没有实现
 		// request.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE,false);
+		return request;
+	}
+	
+	/**
+	 * 同步收藏夹
+	 * 
+	 * @param favorites
+	 * @param cookie
+	 * @return
+	 * @throws UnsupportedEncodingException
+	 */
+	public HttpRequest createSyncFavoriteRequest2(List<SyncItemInfo> favorites, String mobToken)
+			throws UnsupportedEncodingException {
+		HttpRequest request = new HttpRequest(URL_SYNCSTORE2);
+		if (TEST)
+			request.addHeaderField("host", "so.open.163.com");
+		request.setRequestMethod(HttpRequest.METHOD_POST);
+
+		List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+		JSONArray arr = new JSONArray();
+		for (SyncItemInfo item : favorites) {
+			arr.put(item.toJsonObject());
+		}
+		pairs.add(new BasicNameValuePair("playids", arr.toString()));
+		request.setHttpEntity(new UrlEncodedFormEntity(pairs, HTTP.UTF_8));
+		request.addHeaderField(HTTP.USER_AGENT, sUserAgent);
+		request.addHeaderField("mob-token", mobToken);
 		return request;
 	}
 
@@ -346,6 +394,7 @@ public class VopenProtocol {
 	 *            用户cookie
 	 * @return
 	 */
+	@Deprecated
 	public HttpRequest createAddStoreRequest(String userId, String plid,
 			String cookie) {
 		HttpRequest request = new HttpRequest(URL_ADDSTORE);
@@ -374,6 +423,31 @@ public class VopenProtocol {
 	}
 
 	/**
+	 * 添加一个课程到收藏
+	 * @param plid
+	 * @param mobToken
+	 * @return
+	 */
+	public HttpRequest createAddStoreRequest2(String plid, String mobToken) {
+		HttpRequest request = new HttpRequest(URL_ADDSTORE2, HttpRequest.METHOD_POST);
+		if (TEST)
+			request.addHeaderField("host", "so.open.163.com");
+		List<NameValuePair> params = new ArrayList<NameValuePair>();
+		params.add(new BasicNameValuePair("playid", plid));
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String storetime = sdf.format(new Date()).toString();
+		params.add(new BasicNameValuePair("storetime", storetime));
+		try {
+			request.setHttpEntity(new UrlEncodedFormEntity(params, HTTP.UTF_8));
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		request.addHeaderField(HTTP.USER_AGENT, sUserAgent);
+		request.addHeaderField("mob-token", mobToken);
+		return request;
+	}
+
+	/**
 	 * 删除收藏
 	 * 
 	 * @param userId
@@ -384,6 +458,7 @@ public class VopenProtocol {
 	 *            用户cookie
 	 * @return
 	 */
+	@Deprecated
 	public HttpRequest createDelRequest(String userId, List<String> plidList,
 			String cookie) {
 		HttpRequest request = new HttpRequest(URL_DELSTORE);
@@ -411,6 +486,36 @@ public class VopenProtocol {
 			e.printStackTrace();
 		}
 
+		return request;
+	}
+
+	/**
+	 * 删除若干个收藏
+	 * @param plidList
+	 * @param mobToken
+	 * @return
+	 */
+	public HttpRequest createDelStoreRequest2(List<String> plidList,
+			String mobToken) {
+		HttpRequest request = new HttpRequest(URL_DELSTORE2,HttpRequest.METHOD_POST);
+		if (TEST)
+			request.addHeaderField("host", "so.open.163.com");
+		List<NameValuePair> params = new ArrayList<NameValuePair>();
+		StringBuilder plids = new StringBuilder();
+		for (int i = 0; i < plidList.size(); i++) {
+			String plid = plidList.get(i);
+			plids.append(plid);
+			if (i != plidList.size() - 1)
+				plids.append(",");
+		}
+		params.add(new BasicNameValuePair("playids", plids.toString()));
+		try {
+			request.setHttpEntity(new UrlEncodedFormEntity(params, HTTP.UTF_8));
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		request.addHeaderField(HTTP.USER_AGENT, sUserAgent);
+		request.addHeaderField("mob-token", mobToken);
 		return request;
 	}
 
@@ -658,6 +763,39 @@ public class VopenProtocol {
 	public HttpRequest createGetCourseAdInfoRequest(String plid) {
 		String url = String.format(URL_GET_COURSE_AD_INFO, plid);
 		HttpRequest request = new HttpRequest(url, HttpRequest.METHOD_GET);
+		request.addHeaderField(HTTP.USER_AGENT, sUserAgent);
+		return request;
+	}
+
+//	public HttpRequest createGetPublicKeyRequest() {
+//		HttpRequest request = new HttpRequest(URL_GET_RSA_PUBLIC_KEY,
+//				HttpRequest.METHOD_GET);
+//		List<NameValuePair> params = new ArrayList<NameValuePair>();
+//		params.add(new BasicNameValuePair("key_type", "aphone"));
+//		try {
+//			request.setHttpEntity(new UrlEncodedFormEntity(params, HTTP.UTF_8));
+//		} catch (UnsupportedEncodingException e) {
+//			e.printStackTrace();
+//		}
+//		request.addHeaderField(HTTP.USER_AGENT, sUserAgent);
+//		return request;
+//	}
+
+	public HttpRequest createGetMobTokenRequest(int logonType, String email,
+			String xParam) {
+		HttpRequest request = new HttpRequest(URL_GET_MOB_TOKEN,
+				HttpRequest.METHOD_POST);
+		List<NameValuePair> params = new ArrayList<NameValuePair>();
+		params.add(new BasicNameValuePair("logon_type", String
+				.valueOf(logonType)));
+		params.add(new BasicNameValuePair("email", email));
+		params.add(new BasicNameValuePair("x_param", xParam));
+		params.add(new BasicNameValuePair("moblie_type", "aphone"));
+		try {
+			request.setHttpEntity(new UrlEncodedFormEntity(params, HTTP.UTF_8));
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
 		request.addHeaderField(HTTP.USER_AGENT, sUserAgent);
 		return request;
 	}

@@ -13,6 +13,7 @@ import vopen.response.HeadAd;
 import vopen.response.HotWordInfo;
 import vopen.response.OneWholeCommentBuildingInfo;
 import vopen.response.PostCommentStatus;
+import vopen.response.PublicKey;
 import vopen.response.PushList;
 import vopen.response.RecommAppInfo;
 import vopen.response.RecommendColumn;
@@ -130,6 +131,12 @@ public class VopenCallBack {
 	 */
 	public void onGetCourseAdInfo(int transactionId, CourseAdInfo info){}
 	
+	/**
+	 * 获取mob-token成功
+	 */
+	public void onGetMobToken(int transactionId, String token){}
+	
+	
 	/*************************************************************
 	 * error
 	 *************************************************************/
@@ -229,6 +236,11 @@ public class VopenCallBack {
 	 */
 	public void onGetCourseAdInfoError(int transactionId,int errCode, String err){}
 	
+	/**
+	 * 获取mob token失败。
+	 */
+	public void onGetMobTokenError(int transactionId,int errCode, String err){}
+	
 	/*********************************************************
 	 * 评论相关回调
 	 ********************************************************/
@@ -276,6 +288,7 @@ public class VopenCallBack {
 		    onRegisterError(transactionId, errCode, errStr);
 		    break;
 		case BaseTransaction.TRANSACTION_TYPE_SYNC_FAVORITE:
+		case BaseTransaction.TRANSACTION_TYPE_SYNC_FAVORITE2:
 		    onSyncFavoriteError(transactionId, errCode, errStr);
 		    break;
 		case BaseTransaction.TRANSACTION_TYPE_FEED_BACK:
@@ -285,9 +298,11 @@ public class VopenCallBack {
 		    onGetAboutInfoError(transactionId, errCode, errStr);
 		    break;
 		case BaseTransaction.TRANSACTION_TYPE_ADD_STORE:
+		case BaseTransaction.TRANSACTION_TYPE_ADD_STORE2:
 		    onAddStoreError(transactionId, errCode, errStr);
 		    break;
 		case BaseTransaction.TRANSACTION_TYPE_DEL_STORE:
+		case BaseTransaction.TRANSACTION_TYPE_DEL_STORE2:
 		    onDelStoreError(transactionId, errCode, errStr);
 		    break;
 		case BaseTransaction.TRANSACTION_TYPE_GET_PUSH_COURSE:
@@ -347,7 +362,9 @@ public class VopenCallBack {
 		case BaseTransaction.TRANSACTION_TYPE_GET_VIDEO_AD:
 			onGetCourseAdInfoError(transactionId, errCode, errStr);
 			break;
-		
+		case BaseTransaction.TRANSACTION_GET_MOB_TOKEN:
+			onGetMobTokenError(transactionId, errCode, errStr);
+			break;
 		}
 	}
 	private void onSuccess(int type, int transactionId, Object obj) {
@@ -368,6 +385,7 @@ public class VopenCallBack {
 		    onRegister(transactionId);
 		    break;
 		case BaseTransaction.TRANSACTION_TYPE_SYNC_FAVORITE:
+		case BaseTransaction.TRANSACTION_TYPE_SYNC_FAVORITE2:
             onSyncFavorite(transactionId, (List<SyncItemInfo>)obj);
             break;
 		case BaseTransaction.TRANSACTION_TYPE_FEED_BACK:
@@ -380,9 +398,11 @@ public class VopenCallBack {
 			onUiEvent(transactionId, (UiEventTransport)obj);
             break;
 		case BaseTransaction.TRANSACTION_TYPE_ADD_STORE:
+		case BaseTransaction.TRANSACTION_TYPE_ADD_STORE2:
 		    onAddStore(transactionId, (String)obj);
 		    break;
 		case BaseTransaction.TRANSACTION_TYPE_DEL_STORE:
+		case BaseTransaction.TRANSACTION_TYPE_DEL_STORE2:
 		    onDelStore(transactionId, (String)obj);
 		    break;
 		case BaseTransaction.TRANSACTION_TYPE_GET_PUSH_COURSE:
@@ -441,6 +461,9 @@ public class VopenCallBack {
 			break;
 		case BaseTransaction.TRANSACTION_TYPE_GET_VIDEO_AD:
 			onGetCourseAdInfo(transactionId, (CourseAdInfo)obj);
+			break;
+		case BaseTransaction.TRANSACTION_GET_MOB_TOKEN:
+			onGetMobToken(transactionId, (String)obj);
 			break;
 		}
 	}

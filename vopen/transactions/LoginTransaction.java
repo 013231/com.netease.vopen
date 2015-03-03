@@ -13,6 +13,7 @@ import common.framework.task.TransactionEngine;
 import common.pal.PalLog;
 import common.util.NameValuePair;
 
+@Deprecated
 public class LoginTransaction extends BaseTransaction{
 	private static final String TAG = "LoginTransaction";
     String mUserName;

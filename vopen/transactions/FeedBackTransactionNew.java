@@ -10,11 +10,7 @@ import common.pal.PalLog;
 import common.util.NameValuePair;
 
 /**
- * 注销任务.
- * 		
- * 
- * @author lxd
- *
+ * 设置里面的意见反馈
  */
 public class FeedBackTransactionNew extends BaseTransaction
 {

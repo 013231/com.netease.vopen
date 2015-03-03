@@ -20,6 +20,7 @@ public abstract class BaseTransaction extends AsyncTransaction {
 	/**
 	 * 登陆
 	 */
+	@Deprecated
 	public static final int TRANSACTION_TYPE_LOGIN = 0x0 << 8 | 0x01;
 	
 	/**
@@ -55,6 +56,7 @@ public abstract class BaseTransaction extends AsyncTransaction {
 	/**
 	 * 同步收藏
 	 */
+	@Deprecated
 	public static final int TRANSACTION_TYPE_SYNC_FAVORITE = 0x0 <<8 | 0x08;
 	
 	/**
@@ -74,11 +76,13 @@ public abstract class BaseTransaction extends AsyncTransaction {
 	/**
 	 * 添加收藏
 	 */
+	@Deprecated
 	public static final int TRANSACTION_TYPE_ADD_STORE = 0x0 << 8 | 0x0C;
 	
 	/**
 	 * 删除收藏
 	 */
+	@Deprecated
 	public static final int TRANSACTION_TYPE_DEL_STORE = 0x0 << 8 | 0x0D;
 	
 	/**
@@ -182,6 +186,36 @@ public abstract class BaseTransaction extends AsyncTransaction {
 	 * 获取主页的所有推荐
 	 */
 	public static final int TRANSACTION_GET_HOME_RECOMMEDN_INFO = 0x0 << 8 | 0x28;
+	
+	/**
+	 * 获取用户提交urs-token的公钥
+	 */
+//	public static final int TRANSACTION_GET_PUBLIC_KEY = 0x0 << 8 | 0x29;
+	
+	/**
+	 * 获取mob-token
+	 */
+	public static final int TRANSACTION_GET_MOB_TOKEN = 0x0 << 8 | 0x30; 
+	
+	/**
+	 * 登录
+	 */
+	public static final int TRANSACTION_TYPE_LOGIN2 = 0x0 << 8 | 0x31;
+	
+	/**
+	 * 同步收藏(新接口)
+	 */
+	public static final int TRANSACTION_TYPE_SYNC_FAVORITE2 = 0x0 <<8 | 0x32;
+	
+	/**
+	 * 添加收藏(新接口)
+	 */
+	public static final int TRANSACTION_TYPE_ADD_STORE2 = 0x0 << 8 | 0x33;
+	
+	/**
+	 * 删除收藏(新接口)
+	 */
+	public static final int TRANSACTION_TYPE_DEL_STORE2 = 0x0 << 8 | 0x34;
 	
 	protected int getHttpErrorCode(int code,int type) {
 

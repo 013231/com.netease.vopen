@@ -7,6 +7,9 @@ import common.framework.http.HttpRequest;
 import common.framework.task.TransactionEngine;
 import common.util.NameValuePair;
 
+/**
+ * 视频播放错误反馈
+ */
 public class FeedBackTransaction extends BaseTransaction {
     String mProductType;
     String mOsVersion;

@@ -7,9 +7,11 @@ import java.util.List;
 import vopen.response.CourseInfo;
 import vopen.response.UiEventTransport;
 import vopen.transactions.AddStoreTransaction;
+import vopen.transactions.AddStoreTransaction2;
 import vopen.transactions.BaseTransaction;
 import vopen.transactions.CommentTransaction;
 import vopen.transactions.DelStoreTransaction;
+import vopen.transactions.DelStoreTransaction2;
 import vopen.transactions.FeedBackTransaction;
 import vopen.transactions.FeedBackTransactionNew;
 import vopen.transactions.GetAboutInfoTransaction;
@@ -17,6 +19,7 @@ import vopen.transactions.GetCourseAdTransaction;
 import vopen.transactions.GetHeadAdTransation;
 import vopen.transactions.GetHomeRecommendInfoTransation;
 import vopen.transactions.GetHotWordsTransaction;
+import vopen.transactions.GetMobTokenTransation;
 import vopen.transactions.GetPushCourseTransaction;
 import vopen.transactions.GetRecommAppTransaction;
 import vopen.transactions.GetRecommendTransaction;
@@ -31,6 +34,7 @@ import vopen.transactions.SendDownloadFeedbackTransaction;
 import vopen.transactions.SendSearchFeedbackTransaction;
 import vopen.transactions.SendViewCourseFeedbackTransaction;
 import vopen.transactions.SyncStoreTransaction;
+import vopen.transactions.SyncStoreTransaction2;
 import vopen.transactions.SyncTranslateNumTransaction;
 import vopen.transactions.UiEventTransportTransaction;
 import android.content.Context;
@@ -226,12 +230,13 @@ public class VopenService {
 	 * @param pwd
 	 * @return
 	 */
+	@Deprecated
 	public int doLogin(String username, String pwd) {
 		LoginTransaction loginTransaction = new LoginTransaction(
 				mTransactionEngine, username, pwd);
 		return startTransaction(loginTransaction, mGroupListener);
 	}
-
+	
 	/**
 	 * 注册
 	 * @param username
@@ -247,14 +252,27 @@ public class VopenService {
 	/**
 	 * 同步收藏
 	 * @param userid
-	 * @param playidsjson
 	 * @param cookie
 	 * @param isSyncLocal 是否同步本地数据库（当用户刚登陆时同步）
 	 * @return
 	 */
+	@Deprecated
 	public int doSyncStore(String userid, String cookie,boolean isSyncLocal) {
 		SyncStoreTransaction syncStoreTransaction = new SyncStoreTransaction(
 				mTransactionEngine, userid, cookie, isSyncLocal);
+		return startTransaction(syncStoreTransaction, mGroupListener);
+	}
+	
+	/**
+	 * 同步收藏(新接口)
+	 * @param userid
+	 * @param mobToken
+	 * @param isSyncLocal
+	 * @return
+	 */
+	public int doSyncStore2(String userid, String mobToken,boolean isSyncLocal) {
+		SyncStoreTransaction2 syncStoreTransaction = new SyncStoreTransaction2(
+				mTransactionEngine, userid, mobToken, isSyncLocal);
 		return startTransaction(syncStoreTransaction, mGroupListener);
 	}
 
@@ -303,11 +321,26 @@ public class VopenService {
 	 * @param cookie 登录用户cookie
 	 * @return
 	 */
+	@Deprecated
 	public int doAddStore(String userid, String playid, String cookie) {
 		AddStoreTransaction addStoreTransaction = new AddStoreTransaction(
 				mTransactionEngine, userid, playid, cookie);
 		return startTransaction(addStoreTransaction, mGroupListener);
 	}
+	
+	/**
+	 * 登录用户添加收藏(新接口)
+	 * @param userid 登录用户名
+	 * @param playid 课程ID
+	 * @param token mob token
+	 * @return
+	 */
+	public int doAddStore2(String userid, String playid, String token) {
+		AddStoreTransaction2 addStoreTransaction = new AddStoreTransaction2(
+				mTransactionEngine, playid, token, userid);
+		return startTransaction(addStoreTransaction, mGroupListener);
+	}
+	
 
 	/**
 	 * 登录用户删除收藏
@@ -316,10 +349,25 @@ public class VopenService {
 	 * @param cookie 登录用户cookie
 	 * @return
 	 */
+	@Deprecated
 	public int doDelStore(Context context, String userid,
 			List<String> playidList, String cookie) {
 		DelStoreTransaction delStoreTransaction = new DelStoreTransaction(
 				mTransactionEngine, context, userid, playidList, cookie);
+		return startTransaction(delStoreTransaction, mGroupListener);
+	}
+	
+	/**
+	 * 登录用户删除收藏
+	 * @param userid 登录用户名
+	 * @param playid 课程ID
+	 * @param cookie 登录用户cookie
+	 * @return
+	 */
+	public int doDelStore2(Context context, String userid,
+			List<String> playidList, String token) {
+		DelStoreTransaction2 delStoreTransaction = new DelStoreTransaction2(
+				mTransactionEngine, userid, playidList, token);
 		return startTransaction(delStoreTransaction, mGroupListener);
 	}
 
@@ -549,6 +597,16 @@ public class VopenService {
 	 */
 	public int doGetCourseAdInfo(String plid){
 		GetCourseAdTransaction transaction = new GetCourseAdTransaction(mTransactionEngine, plid);
+		return startTransaction(transaction, mGroupListener);
+	}
+	
+	/**
+	 * 获取mob-token。<br>
+	 * mob-token用于在用户同步收藏时使用。
+	 * @return
+	 */
+	public int doGetMobToken(String userName){
+		GetMobTokenTransation transaction = new GetMobTokenTransation(mTransactionEngine, userName);
 		return startTransaction(transaction, mGroupListener);
 	}
 }

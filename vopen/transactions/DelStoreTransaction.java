@@ -17,6 +17,7 @@ import common.framework.http.HttpRequest;
 import common.framework.task.TransactionEngine;
 import common.util.NameValuePair;
 
+@Deprecated
 public class DelStoreTransaction extends BaseTransaction {
     private String mUserId;
     private List<String> mPlayIds;

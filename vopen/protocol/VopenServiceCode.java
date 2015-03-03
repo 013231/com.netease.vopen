@@ -128,4 +128,9 @@ public class VopenServiceCode {
 	 * 反馈意见
 	 */
 	public static final int FEEDBACK_ERR = SERVICE_ERR_CODE + 0x16001;
+	
+	/**
+	 * 需要重新登录
+	 */
+	public static final int RELOGIN_NEEDED = SERVICE_ERR_CODE + 0x18000;
 }

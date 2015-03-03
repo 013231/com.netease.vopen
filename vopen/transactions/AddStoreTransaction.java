@@ -12,6 +12,7 @@ import common.framework.http.HttpRequest;
 import common.framework.task.TransactionEngine;
 import common.util.NameValuePair;
 
+@Deprecated
 public class AddStoreTransaction extends BaseTransaction {
     private String mUserId;
     private String mPlayId;
