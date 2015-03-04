@@ -32,7 +32,7 @@ public class VopenProtocol {
 	// 切换是否测试版本
 	public static boolean TEST = true;
 	// 推送是否测试版本
-	public static boolean TEST_PUSH = false;
+	public static boolean TEST_PUSH = true;
 
 	public static boolean TEST_AD = true;
 
@@ -53,7 +53,7 @@ public class VopenProtocol {
 			: "70f1016e4e0647908fab6145dc1874d1";
 
 	// 广告ID
-	public static final String AD_APP_ID = TEST_AD ? "C0A475D7" : "29801EC2";
+	public static final String AD_APP_ID = "29801EC2";
 
 	// 其他参数
 	private final static String sUserAgent = "NETS_Android";
