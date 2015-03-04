@@ -53,7 +53,7 @@ public class GetMobTokenTransation extends BaseTransaction {
 				}
 			} else if (code == VopenServiceCode.ERR_URS_TOKEN_INVALID) {
 				PalLog.d(TAG, "urs token过期，需要重新登录");
-				notifyMessage(VopenServiceCode.RELOGIN_NEEDED,
+				notifyError(VopenServiceCode.RELOGIN_NEEDED,
 						ErrorToString
 								.getString(VopenServiceCode.RELOGIN_NEEDED));
 				return;

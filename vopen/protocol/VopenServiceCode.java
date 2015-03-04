@@ -142,5 +142,5 @@ public class VopenServiceCode {
 	/**
 	 * 服务器返回code=-11111表示urs token过期
 	 */
-	public static final int ERR_URS_TOKEN_INVALID = -11111;
+	public static final int ERR_URS_TOKEN_INVALID = -10001;
 }
