@@ -43,7 +43,9 @@ public class AddStoreTransaction2 extends BaseTransaction {
 				if (code == 0) {
 					notifyMessage(VopenServiceCode.TRANSACTION_SUCCESS,
 							response);
-				} else if (code == VopenServiceCode.ERR_MOB_TOKEN_INVALID) {// mob token过期，重新获取mob token
+				} else if (code == VopenServiceCode.ERR_MOB_TOKEN_INVALID) {// mob
+																			// token过期，重新获取mob
+																			// token
 					if (mResend) {// 第二次请求还是返回-10000
 						notifyError(
 								VopenServiceCode.ADD_STORE_ERR,
@@ -67,20 +69,22 @@ public class AddStoreTransaction2 extends BaseTransaction {
 							@Override
 							public void onTransactionError(int errCode,
 									int arg1, int arg2, Object arg3) {
-								notifyError(
-										VopenServiceCode.ADD_STORE_ERR,
-										ErrorToString
-												.getString(VopenServiceCode.ADD_STORE_ERR));
+								if (errCode == VopenServiceCode.RELOGIN_NEEDED) {
+									notifyError(
+											VopenServiceCode.RELOGIN_NEEDED,
+											ErrorToString
+													.getString(VopenServiceCode.RELOGIN_NEEDED));
+								} else {
+									notifyError(
+											VopenServiceCode.SYNC_FAVORITE_ERR_INNER,
+											ErrorToString
+													.getString(VopenServiceCode.SYNC_FAVORITE_ERR_INNER));
+								}
 							}
 						});
 						getTransactionEngine().beginTransaction(tran);
 						mResend = true;
 					}
-				} else if (code == VopenServiceCode.ERR_URS_TOKEN_INVALID) {// urs token过期
-					PalLog.d(TAG, "urs token过期，需要重新登录");
-					notifyError(VopenServiceCode.RELOGIN_NEEDED,
-							ErrorToString
-									.getString(VopenServiceCode.RELOGIN_NEEDED));
 				} else {
 					notifyError(VopenServiceCode.ADD_STORE_ERR,
 							ErrorToString

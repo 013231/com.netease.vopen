@@ -38,19 +38,35 @@ public class GetMobTokenTransation extends BaseTransaction {
 		String mobToken = null;
 		try {
 			JSONObject jobj = new JSONObject(response);
-			JSONObject result = jobj.optJSONObject("results");
-			if (result != null) {
-				mobToken = result.optString("mob-token");
+			JSONObject status = jobj.optJSONObject("status");
+			if (status == null) {
+				notifyError(VopenServiceCode.ERR_INTERNAL_ERROR,
+						ErrorToString
+								.getString(VopenServiceCode.ERR_INTERNAL_ERROR));
+				return;
 			}
-			// 缓存在preference中
-			SharedPreferences sp = BaseApplication.getAppInstance()
-					.getSharedPreferences(MOB_TOKEN_FILE, 0);
-			sp.edit().putString(MOB_TOKEN_KEY, mobToken).commit();
+			int code = status.optInt("code");
+			if (code == 0) {
+				JSONObject result = jobj.optJSONObject("results");
+				if (result != null) {
+					mobToken = result.optString("mob-token");
+				}
+			} else if (code == VopenServiceCode.ERR_URS_TOKEN_INVALID) {
+				PalLog.d(TAG, "urs token过期，需要重新登录");
+				notifyMessage(VopenServiceCode.RELOGIN_NEEDED,
+						ErrorToString
+								.getString(VopenServiceCode.RELOGIN_NEEDED));
+				return;
+			}
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
 		if (mobToken != null) {
 			PalLog.d(TAG, "获取mob-token成功");
+			// 缓存在preference中
+			SharedPreferences sp = BaseApplication.getAppInstance()
+					.getSharedPreferences(MOB_TOKEN_FILE, 0);
+			sp.edit().putString(MOB_TOKEN_KEY, mobToken).commit();
 			notifyMessage(VopenServiceCode.TRANSACTION_SUCCESS, mobToken);
 		} else {
 			PalLog.e(TAG, "获取mob-token失败");
@@ -75,7 +91,7 @@ public class GetMobTokenTransation extends BaseTransaction {
 
 	@Override
 	public void onTransact() {
-		PalLog.d(TAG, "pulic key有缓存，直接换取mob-token...");
+		PalLog.d(TAG, "开始获取mob-token");
 		HttpRequest request = VopenProtocol.getInstance()
 				.createGetMobTokenRequest(-1, usrId, calculateXparam());
 		if (!isCancel()) {

@@ -109,20 +109,22 @@ public class SyncStoreTransaction2 extends BaseTransaction {
 						@Override
 						public void onTransactionError(int errCode, int arg1,
 								int arg2, Object arg3) {
-							notifyError(
-									VopenServiceCode.SYNC_FAVORITE_ERR_INNER,
-									ErrorToString
-											.getString(VopenServiceCode.SYNC_FAVORITE_ERR_INNER));
+							if (errCode == VopenServiceCode.RELOGIN_NEEDED){
+								notifyError(
+										VopenServiceCode.RELOGIN_NEEDED,
+										ErrorToString
+												.getString(VopenServiceCode.RELOGIN_NEEDED));
+							}else{
+								notifyError(
+										VopenServiceCode.SYNC_FAVORITE_ERR_INNER,
+										ErrorToString
+												.getString(VopenServiceCode.SYNC_FAVORITE_ERR_INNER));
+							}
 						}
 					});
 					getTransactionEngine().beginTransaction(tran);
 					mResend = true;
 				}
-			} else if (code == VopenServiceCode.ERR_URS_TOKEN_INVALID) {
-				PalLog.d(TAG, "urs token过期，需要重新登录");
-				notifyError(VopenServiceCode.RELOGIN_NEEDED,
-						ErrorToString
-								.getString(VopenServiceCode.RELOGIN_NEEDED));
 			} else {
 				notifyError(
 						VopenServiceCode.SYNC_FAVORITE_ERR_INNER,
