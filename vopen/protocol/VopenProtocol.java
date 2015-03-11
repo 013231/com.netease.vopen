@@ -160,7 +160,7 @@ public class VopenProtocol {
 //			+ "/mobile/getPublicKey.do";
 	// 获取mob-token
 	private static final String URL_GET_MOB_TOKEN = (TEST ? TEST_URL_C_OPEN_DOMAIN
-			: URL_C_OPEN_DOMAIN)
+			: "https://open-s.163.com")
 			+ "/auth/mob/logon.do";
 
 	private static VopenProtocol mInstance;
