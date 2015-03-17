@@ -34,12 +34,15 @@ public class RecommendInfo {
 	public String contentUrl;
 	public String contentId;
 	public String title;
+	public String subTitle;
+	public String desc;
 	public String picUrl;
 	public String tag;
 	public String tagColor;
 	public String tagColorBg;
 	public String top;
-
+	
+	
 	public RecommendInfo(JSONObject jsonObj) {
 		parseJson(jsonObj);
 	}
@@ -60,5 +63,7 @@ public class RecommendInfo {
 		tagColor = jso.optString("tagColor");
 		tagColorBg = jso.optString("tagColorBg");
 		top = jso.optString("top");
+		subTitle = jso.optString("subtitle");
+		desc = jso.optString("description");
 	}
 }
