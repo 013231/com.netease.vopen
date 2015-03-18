@@ -360,6 +360,7 @@ public class Tools {
 			String className = ri.activityInfo.name;
 			Intent intent = new Intent(Intent.ACTION_MAIN);
 			intent.addCategory(Intent.CATEGORY_LAUNCHER);
+			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			ComponentName cn = new ComponentName(packageName, className);
 			intent.setComponent(cn);
 			context.startActivity(intent);
