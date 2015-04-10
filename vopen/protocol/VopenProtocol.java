@@ -30,11 +30,11 @@ import common.util.Util;
 
 public class VopenProtocol {
 	// 切换是否测试版本
-	public static boolean TEST = true;
+	public static boolean TEST = false;
 	// 推送是否测试版本
-	public static boolean TEST_PUSH = true;
+	public static boolean TEST_PUSH = false;
 
-	public static boolean TEST_AD = true;
+	public static boolean TEST_AD = false;
 
 	// 服务器域名
 	// private String SERVER_DOMAIN = "http://so.v.163.com";//原北京
@@ -54,6 +54,8 @@ public class VopenProtocol {
 
 	// 广告ID
 	public static final String AD_APP_ID = "29801EC2";
+	//网络监控的id
+	public static final String MAM_ID = "36b36cebcb2f4bce8f14522d3b908091";
 
 	// 其他参数
 	private final static String sUserAgent = "NETS_Android";
