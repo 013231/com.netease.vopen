@@ -11,7 +11,6 @@ import vopen.db.DBApi.AccountInfo;
 import vopen.db.DBApi.CollectInfo;
 import vopen.db.DBApi.CourseDetailInfo;
 import vopen.db.DBApi.CoursePlayInfo;
-import vopen.db.DBApi.CourseType;
 import vopen.db.DBApi.DownLoadInfo;
 import vopen.db.DBApi.EDownloadStatus;
 import vopen.db.DBApi.VideoPlayInfo;
@@ -56,7 +55,7 @@ public class DBUtils {
 	 */
 	public static String getLocalCourseByType(Context context, String type) {
 		String rst = null;
-		Cursor cur = DBApi.queryCourseByType(context, type,null);
+		Cursor cur = DBApi.queryAllCourse(context,null);
 		if (cur != null && cur.moveToFirst()) {
 			rst = cur.getString(cur.getColumnIndex(VopenAllDataJsonHelper.COURSE_CONTENT));
 		}
@@ -67,14 +66,13 @@ public class DBUtils {
 	}
 	
 	/**
-	 * 
+	 * 判断课程缓存是否存在
 	 * @param context
 	 * @return
-	 * @deprecated
 	 */
 	public static boolean isAllCourseDataExist(Context context){
 		boolean ret = false;
-		Cursor cur = DBApi.queryCourseByType(context, CourseType.DATA_TYPE_ALL, null);
+		Cursor cur = DBApi.queryAllCourse(context, new String[]{VopenAllDataJsonHelper.COURSE_ID});
 		if (cur != null && cur.moveToFirst()){
 			ret = true;
 		}
@@ -83,6 +81,144 @@ public class DBUtils {
 		}
 		return ret;
 	}
+	
+	/**
+	 * 根据课程的分类、来源来筛选
+	 * @param context
+	 * @param tag
+	 * @param source
+	 * @param sortByUpdateTime
+	 * @return
+	 */
+	public static Cursor getCourseByTagAndSrc(Context context, String tag, String source, boolean sortByUpdateTime){
+		String[] projection = new String[]{VopenAllDataJsonHelper.COURSE_CONTENT, "_id"};
+		String selection = null;
+		List<String> selectionArgsList = new ArrayList<String>();
+		if (source != null) {
+			selection = VopenAllDataJsonHelper.COURSE_SOURCE + " =?";
+			selectionArgsList.add(source);
+		}
+		if (tag != null){
+			if (selection == null){
+				selection = VopenAllDataJsonHelper.COURSE_TAG + " LIKE ?";
+			}else{
+				selection += " AND " + VopenAllDataJsonHelper.COURSE_TAG + " LIKE ?";
+			}
+			selectionArgsList.add("%"+tag+"%");
+		}
+		String[] selectionArgs = null;
+		if (selectionArgsList.size() > 0){
+			selectionArgs = selectionArgsList.toArray(new String[0]);
+		}
+		String sortOrder = null;
+		if (sortByUpdateTime){
+			sortOrder = VopenAllDataJsonHelper.COURSE_UPDATE_TIME + " DESC";
+		}else{
+			sortOrder = VopenAllDataJsonHelper.COURSE_HIT_COUNT + " DESC";
+		}
+		return DBApi.queryCourse(context, projection, selection, selectionArgs, sortOrder);
+	}
+	
+	/**
+	 * 查询与某一门课程相似的课程列表。
+	 * @param context
+	 * @param info
+	 * @return
+	 */
+	public static Cursor getRelativeCourses(Context context, CourseInfo info){
+		String[] projection = new String[]{VopenAllDataJsonHelper.COURSE_CONTENT, "_id"};
+		String source = info.source;
+		StringBuilder selectionBuilder = new StringBuilder();
+		List<String> selectionArgsList = new ArrayList<String>();
+		if (source != null) {
+			selectionBuilder.append( VopenAllDataJsonHelper.COURSE_SOURCE + " = ?");
+			selectionArgsList.add(source);
+		}
+		String tags = info.tags;
+		if (!TextUtils.isEmpty(tags)){
+			String[] tagTokens = tags.split(",");
+			if (selectionBuilder != null){
+				selectionBuilder.append(" AND ");
+			}
+			selectionBuilder.append("(");
+			for (int i = 0; i < tagTokens.length; i++){
+				String tag = tagTokens[i];
+				selectionBuilder.append(VopenAllDataJsonHelper.COURSE_TAG + " LIKE ? " + " OR ");
+				selectionArgsList.add(tag);
+			}
+			selectionBuilder.setLength(selectionBuilder.length() - 4);
+			selectionBuilder.append(")");
+		}
+		String selection = null;
+		if (selectionBuilder.length() > 0){
+			selection = selectionBuilder.toString();
+		}
+		String[] selectionArgs = null;
+		if (selectionArgsList.size() > 0){
+			selectionArgs = selectionArgsList.toArray(new String[0]);
+		}
+		return DBApi.queryCourse(context, projection, selection, selectionArgs, null);
+	}
+	
+	/**
+	 * 搜索时提示信息
+	 * @param context
+	 * @param criteria
+	 * @return
+	 */
+	public static Cursor getSearchHint(Context context, String criteria){
+		String[] projection = new String[]{VopenAllDataJsonHelper.COURSE_NAME, VopenAllDataJsonHelper.COURSE_CONTENT,"_id"};
+		if (TextUtils.isEmpty(criteria)){
+			return null;
+		}
+		String selection = VopenAllDataJsonHelper.COURSE_NAME + " LIKE ?";
+		String[] selectionArgs = new String[]{"%"+criteria+"%"};
+		String sortOrder = VopenAllDataJsonHelper.COURSE_HIT_COUNT + " DESC";
+		return DBApi.queryCourse(context, projection, selection, selectionArgs, sortOrder);
+	} 
+	
+	/**
+	 * 搜索解决。
+	 * @param context
+	 * @param criteria
+	 * @return
+	 */
+	public static Cursor getSearchResult(Context context, String criteria){
+		String[] projection = new String[]{VopenAllDataJsonHelper.COURSE_CONTENT, "_id"};
+		if (TextUtils.isEmpty(criteria)){
+			return null;
+		}
+		String selection = VopenAllDataJsonHelper.COURSE_CONTENT + " LIKE ?";
+		String[] selectionArgs = new String[]{"%"+criteria+"%"};
+		String sortOrder = VopenAllDataJsonHelper.COURSE_HIT_COUNT + " DESC";
+		return DBApi.queryCourse(context, projection, selection, selectionArgs, sortOrder);
+	}
+	
+	/**
+	 * 从数据库中查询某个id的课程信息
+	 * @param context
+	 * @param course_id
+	 * @return
+	 */
+	public static CourseInfo getCourseInfoByPlid(Context context, String course_id){
+		CourseInfo info = null;
+		if (TextUtils.isEmpty(course_id)){
+			return null;
+		}
+		String[] projection = new String[]{VopenAllDataJsonHelper.COURSE_CONTENT};
+		String selection = VopenAllDataJsonHelper.COURSE_ID + " =?";
+		String[] selectionArgs = new String[]{course_id};
+		Cursor cur = DBApi.queryCourse(context, projection, selection, selectionArgs, null);
+		if (cur != null && cur.moveToFirst()){
+			String content = cur.getString(0);
+			info = new CourseInfo(content);
+		}
+		if (cur != null){
+			cur.close();
+		}
+		return info;
+	}
+	
 	
 	/**保存，修改课程*/
 	public static void insertOrUpdateCourse(Context context, String plid,
@@ -101,13 +237,16 @@ public class DBUtils {
 		if (c != null)
 			c.close();
 	}
+	
+	
+	
 	/***
 	 * 根据课程id查询课程详情
 	 * @param context
 	 * @param course_id
 	 * @return CourseInfo
 	 */
-	public static CourseInfo getCourseByPlid(Context context, String course_id){
+	public static CourseInfo getCourseDetailByPlid(Context context, String course_id){
 		CourseInfo course = null;
 		Cursor c = DBApi.queryCourseDetailByCourseID(context, course_id,null);
 		if(c != null && c.getCount() > 0){
@@ -299,7 +438,7 @@ public class DBUtils {
         CollectInfo collectInfo = new CollectInfo();
         collectInfo.mCourse_id = courseInfo.plid;
         //优先使用横屏的大图片 -- hzsongyuming
-        collectInfo.mCourse_img = courseInfo.largeImg;
+        collectInfo.mCourse_img = courseInfo.largeimgurl;
         if (StringUtil.isEmpty(collectInfo.mCourse_img)){
         	collectInfo.mCourse_img = courseInfo.imgpath;
         }
@@ -352,7 +491,7 @@ public class DBUtils {
         return list;
     }
     
-    public static List<CollecinfoItem> getAllPlayRecordItem(Context context, List<CourseInfo> courseList){
+    public static List<CollecinfoItem> getAllPlayRecordItem(Context context){
         List<CollecinfoItem> list = new ArrayList<CollecinfoItem>();
 //        Cursor c = DBApi.queryCollectAllByUser(context, null);
         String sort = VopenCoursePlayRecordHeleper.PLAY_DATE + " DESC";
@@ -366,17 +505,10 @@ public class DBUtils {
                 info.mCourse_playcount = c.getInt(c.getColumnIndex(VopenCoursePlayRecordHeleper.VIDEO_COUNTS));
                 info.mCourse_title = c.getString(c.getColumnIndex(VopenCoursePlayRecordHeleper.TITLE));
                 
-                CourseInfo courseInfo = getCourseByPlid(context, info.mCourse_id);
-                if(courseInfo == null && courseList != null){
-                	for (CourseInfo course : courseList) {
-            			if (course.plid.equals(info.mCourse_id)){
-            				courseInfo = course;
-            					break;
-            			}
-            		}
-                }
-                if(courseInfo != null)
+                CourseInfo courseInfo = getCourseInfoByPlid(context, info.mCourse_id);
+                if(courseInfo != null){
                 	info.mCourse_translatecount = courseInfo.updated_playcount;
+                }
                 infoItem.mStrPlayRecord = getCoursePlayRecord2(context, info.mCourse_id);
                 list.add(infoItem);
             }
@@ -451,7 +583,7 @@ public class DBUtils {
         CollectInfo collectInfo = new CollectInfo();
         collectInfo.mCourse_id = courseInfo.plid;
         //优先使用横屏的大图片 -- hzsongyuming
-        collectInfo.mCourse_img = courseInfo.largeImg;
+        collectInfo.mCourse_img = courseInfo.largeimgurl;
         if (StringUtil.isEmpty(collectInfo.mCourse_img)){
         	collectInfo.mCourse_img = courseInfo.imgpath;
         }

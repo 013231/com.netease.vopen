@@ -1,7 +1,11 @@
 package common.framework.http;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -10,6 +14,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 import org.apache.http.HttpStatus;
+
+import android.text.TextUtils;
 
 import common.pal.IHttp;
 import common.pal.PalHttp;
@@ -256,8 +262,9 @@ public class HttpEngine implements Runnable
 //						}
 						
 						InputStream in = null;
-						StringBuffer sb = new StringBuffer();
 				        String inputLine = "";
+				        BufferedWriter bw = null;
+				        
 						try {
 							in = mRunningHttp.openInputStream();
 							String ContentType = mRunningHttp.getHeaderField("Content-Type");
@@ -269,25 +276,43 @@ public class HttpEngine implements Runnable
                 				in = PalPlatform.gzipDecompress(in);
                 				PalLog.i("HttpEngine", "is gzip.....");
                 			}
-	                		
-                            
-							BufferedReader is = new BufferedReader(new InputStreamReader(in, charset));
-			                while ((inputLine = is.readLine()) != null) {
-
-			                    sb.append(inputLine);
-			                    
-			                }
-			                
-			                if(reponseCode == HttpStatus.SC_OK) {
-								notifyReceived(request, sb.toString(), mRunningHttp);
-							} else {
-								notifyError(request, reponseCode, sb.toString());
-							}
+                			BufferedReader is = new BufferedReader(new InputStreamReader(in, charset));
+    						String filePath = request.getCachePath();
+    						if (TextUtils.isEmpty(filePath)){
+    							//这里常常会由于返回的数据过大而crash，所以增加存储成文件的选项
+    							StringBuffer sb = new StringBuffer();
+    			                while ((inputLine = is.readLine()) != null) {
+    			                    sb.append(inputLine);
+    			                }
+    			                if(reponseCode == HttpStatus.SC_OK) {
+    								notifyReceived(request, sb.toString(), mRunningHttp);
+    							} else {
+    								notifyError(request, reponseCode, sb.toString());
+    							}
+    						} else {//如果request里面有tf选项，那么写成文件
+    							File f = new File(filePath);
+    							if (!f.exists()){
+    								f.createNewFile();
+    							}
+    							bw = new BufferedWriter(new FileWriter(f));
+    							while ((inputLine = is.readLine()) != null){
+    								bw.write(inputLine);
+    							}
+    							if(reponseCode == HttpStatus.SC_OK) {
+    								notifyReceived(request, filePath, mRunningHttp);
+    							} else {
+    								notifyError(request, reponseCode, filePath);
+    							}
+    						}
 						}
 						finally {
 							if (in != null) {
 								in.close();
 								in = null;
+							}
+							if (bw != null){
+								bw.close();
+								bw = null;
 							}
 						}
 						

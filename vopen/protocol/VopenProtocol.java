@@ -183,7 +183,7 @@ public class VopenProtocol {
 	 * @GET
 	 * @return
 	 */
-	public HttpRequest createGetVListRequest() {
+	public HttpRequest createGetVListRequest(String cachePath) {
 		HttpRequest request = new HttpRequest(URL_VIDIO_LIST,
 				HttpRequest.METHOD_GET);
 		request.addHeaderField(HTTP.USER_AGENT, sUserAgent);
@@ -191,7 +191,8 @@ public class VopenProtocol {
 			request.addHeaderField("host", "so.open.163.com");
 		request.addHeaderField("Accept-Encoding", "gzip, deflate");
 		request.setRequestTimeOut(sTimeout * 1);
-
+		request.setCachePath(cachePath);
+		
 		return request;
 	}
 

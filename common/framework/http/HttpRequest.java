@@ -48,6 +48,8 @@ public class HttpRequest
 	
 	boolean mHeaderResponse;
 	
+	String mCachePath;
+	
 	public HttpRequest(String url){
 		this(url,METHOD_GET);
 	}
@@ -276,5 +278,17 @@ public class HttpRequest
 	
 	public Hashtable getHttpParams(){
 		return mHttpParams;
+	}
+	
+	public void setCachePath(String value) {
+		mCachePath = value;
+	}
+	
+	/**
+	 * 返回请求结果缓存的地址
+	 * @return
+	 */
+	public String getCachePath(){
+		return mCachePath;
 	}
 }

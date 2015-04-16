@@ -29,7 +29,7 @@ import common.util.StringUtil;
 import common.util.Util;
 
 //import common.pal.PalLog;
-
+@Deprecated
 public class SyncStoreTransaction extends BaseTransaction {
 	static final String TAG = "SyncStoreTransaction";
 	String mUserId;
@@ -110,14 +110,13 @@ public class SyncStoreTransaction extends BaseTransaction {
 			info.mData_time = obj.storetime;
 			info.mUser_id = mUserId;
 			info.mIs_synchronized = true;
-			CourseInfo courseInfo = VopenApp.getAppInstance().getCourseByPlid(
-					info.mCourse_id);
+			CourseInfo courseInfo = DBUtils.getCourseInfoByPlid(VopenApp.getAppInstance(), info.mCourse_id);
 			if (courseInfo == null) {
 				PalLog.w(TAG, "找不到课程" + info.mCourse_id);
 				continue;
 			}
 			//优先使用大图片
-			info.mCourse_img = courseInfo.largeImg;
+			info.mCourse_img = courseInfo.largeimgurl;
 			if (StringUtil.isEmpty(info.mCourse_img)) {
 				info.mCourse_img = courseInfo.imgpath;
 			}

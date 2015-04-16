@@ -188,9 +188,9 @@ public class VopenService {
 	 * @param 
 	 * @return
 	 */
-	public int doGetVideoList() {
+	public int doGetVideoList(String cache) {
 		GetVideoListTransaction getVListinTransaction = new GetVideoListTransaction(
-				mTransactionEngine);
+				mTransactionEngine, cache);
 		return startTransaction(getVListinTransaction, mGroupListener);
 	}
 

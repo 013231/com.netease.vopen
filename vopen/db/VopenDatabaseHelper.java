@@ -66,18 +66,25 @@ public class VopenDatabaseHelper extends SQLiteOpenHelper {
 
 		//        clear(db);
 
-		//所有数据的json表，这个表现在已经不用了！
+		// 为所有课程数据建立关系数据表
 		db.execSQL("CREATE TABLE IF NOT EXISTS "
 				+ VopenContentProvider.TABLE_All_DTTA + " ("
-				+ "_id INTEGER PRIMARY KEY,"
+				+ "_id INTEGER PRIMARY KEY," 
+				+ VopenAllDataJsonHelper.COURSE_ID + " TEXT,"
+				+ VopenAllDataJsonHelper.COURSE_NAME + " TEXT,"
+				+ VopenAllDataJsonHelper.COURSE_TAG + " TEXT,"
+				+ VopenAllDataJsonHelper.COURSE_SOURCE + " TEXT,"
+				+ VopenAllDataJsonHelper.COURSE_HIT_COUNT + " LONG DEFAULT 0,"
+				+ VopenAllDataJsonHelper.COURSE_UPDATE_TIME + " LONG DEFAULT 0,"
 				+ VopenAllDataJsonHelper.COURSE_CONTENT + " TEXT,"
 				+ VopenAllDataJsonHelper.COURSE_TYPE + " TEXT" + ");");
 
 		//课程详细数据表
 		db.execSQL("CREATE TABLE IF NOT EXISTS "
 				+ VopenContentProvider.TABLE_COURSE_DATA + " ("
-				+ "_id INTEGER PRIMARY KEY," + VopenDetailHelper.COURSE_PLID
-				+ " TEXT," + VopenDetailHelper.COURSE_CONTENT + " TEXT" + ");");
+				+ "_id INTEGER PRIMARY KEY," 
+				+ VopenDetailHelper.COURSE_PLID+ " TEXT," 
+				+ VopenDetailHelper.COURSE_CONTENT + " TEXT" + ");");
 
 		//我的已经登陆收藏数据表
 		db.execSQL("CREATE TABLE IF NOT EXISTS "
@@ -97,8 +104,9 @@ public class VopenDatabaseHelper extends SQLiteOpenHelper {
 		//我的未登陆收藏数据表
 		db.execSQL("CREATE TABLE IF NOT EXISTS "
 				+ VopenContentProvider.TABLE_NOLOGIN_MY_COLLECT + " ("
-				+ "_id INTEGER PRIMARY KEY," + VopenMyCollectHelper.COURSE_PLID
-				+ " TEXT," + VopenMyCollectHelper.COURSE_IMG + " TEXT,"
+				+ "_id INTEGER PRIMARY KEY," 
+				+ VopenMyCollectHelper.COURSE_PLID + " TEXT," 
+				+ VopenMyCollectHelper.COURSE_IMG + " TEXT,"
 				+ VopenMyCollectHelper.COURSE_TITLE + " TEXT,"
 				+ VopenMyCollectHelper.COURSE_PLAYCOUNT + " INTEGER,"
 				+ VopenMyCollectHelper.COURSE_TRANSLATECOUNT + " INTEGER,"
@@ -108,13 +116,14 @@ public class VopenDatabaseHelper extends SQLiteOpenHelper {
 				");");
 
 		// 用户账号表
-		db.execSQL("CREATE TABLE IF NOT EXISTS "
-				+ VopenContentProvider.TABLE_USER_ACCOUNT + " ("
-				+ "_id INTEGER PRIMARY KEY," + UserAccountHelper.USER_ACCOUNT
-				+ " TEXT," + UserAccountHelper.USER_PASSWORD + " TEXT,"
-				+ UserAccountHelper.USER_NIKENAME + " TEXT,"
-				+ UserAccountHelper.IS_LOGIN + " INTEGER,"
-				+ UserAccountHelper.USER_COOKIE + " TEXT" + ");");
+//		db.execSQL("CREATE TABLE IF NOT EXISTS "
+//				+ VopenContentProvider.TABLE_USER_ACCOUNT + " ("
+//				+ "_id INTEGER PRIMARY KEY," 
+//				+ UserAccountHelper.USER_ACCOUNT+ " TEXT," 
+//				+ UserAccountHelper.USER_PASSWORD + " TEXT,"
+//				+ UserAccountHelper.USER_NIKENAME + " TEXT,"
+//				+ UserAccountHelper.IS_LOGIN + " INTEGER,"
+//				+ UserAccountHelper.USER_COOKIE + " TEXT" + ");");
 
 		// 课程播放表
 		db.execSQL("CREATE TABLE IF NOT EXISTS "
@@ -1095,6 +1104,7 @@ public class VopenDatabaseHelper extends SQLiteOpenHelper {
 				+ DownloadManagerHelper.PRIORITY + " INTEGER DEFAULT 0");
 	}
 	
+
 	/**
 	 * 新版本需要重新绑定腾讯微博 
 	 */
@@ -1110,6 +1120,39 @@ public class VopenDatabaseHelper extends SQLiteOpenHelper {
 		db.delete(VopenContentProvider.TABLE_All_DTTA, null, null);
 	}
 
+	/**
+	 * 为所有课程数据建立关系数据表
+	 * @param db
+	 */
+	private void alterAllDataTable(SQLiteDatabase db) {
+		db.execSQL("ALTER TABLE "
+				+ VopenContentProvider.TABLE_All_DTTA
+				+ " ADD COLUMN " + VopenAllDataJsonHelper.COURSE_ID + " TEXT");
+		db.execSQL("ALTER TABLE "
+				+ VopenContentProvider.TABLE_All_DTTA
+				+ " ADD COLUMN " + VopenAllDataJsonHelper.COURSE_NAME + " TEXT");
+		db.execSQL("ALTER TABLE "
+				+ VopenContentProvider.TABLE_All_DTTA
+				+ " ADD COLUMN " + VopenAllDataJsonHelper.COURSE_TAG + " TEXT");
+		db.execSQL("ALTER TABLE "
+				+ VopenContentProvider.TABLE_All_DTTA
+				+ " ADD COLUMN " + VopenAllDataJsonHelper.COURSE_SOURCE + " TEXT");
+		db.execSQL("ALTER TABLE "
+				+ VopenContentProvider.TABLE_All_DTTA
+				+ " ADD COLUMN " + VopenAllDataJsonHelper.COURSE_HIT_COUNT + " LONG DEFAULT 0");
+		db.execSQL("ALTER TABLE "
+				+ VopenContentProvider.TABLE_All_DTTA
+				+ " ADD COLUMN " + VopenAllDataJsonHelper.COURSE_UPDATE_TIME + " LONG DEFAULT 0");
+	}
+	
+	/**
+	 * 删除用于登录信息表，现在已经使用urs sdk来登录。
+	 * @param db
+	 */
+	private void dropUserTable(SQLiteDatabase db){
+		db.execSQL("DROP TABLE " + VopenContentProvider.TABLE_USER_ACCOUNT);
+	}
+	
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		PalLog.v(TAG, "Upgrading database from version " + oldVersion + " to "
@@ -1164,6 +1207,9 @@ public class VopenDatabaseHelper extends SQLiteOpenHelper {
 		case 19:
 			//20版本的数据库，不再需要TABLE_All_DTTA这个表，把其中的数据删掉
 			truncateAllDataTable(db);
+		case 20:
+			alterAllDataTable(db);
+			dropUserTable(db);
 		default:
 			break;
 		}

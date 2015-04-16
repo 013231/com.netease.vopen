@@ -50,7 +50,19 @@ public class VopenContentProvider extends BaseContentProvider {
     /**公开课所有数据JSON表helper类*/
     public static class VopenAllDataJsonHelper {
     	/**===================数据库字段==================*/
-    	/**Content*/
+    	/**课程id*/
+    	public static final String COURSE_ID = "course_id";
+    	/**课程名称*/
+    	public static final String COURSE_NAME = "course_name";
+    	/**课程tag*/
+    	public static final String COURSE_TAG = "course_tag";
+    	/**课程来源*/
+    	public static final String COURSE_SOURCE = "course_src";
+    	/**课程热度*/
+    	public static final String COURSE_HIT_COUNT = "course_hit_count";
+    	/**课程更新时间*/
+    	public static final String COURSE_UPDATE_TIME = "course_update_time";
+    	/**课程的JSON数据*/
     	public static final String COURSE_CONTENT = "course_content";
     	/**type*/
     	public static final String COURSE_TYPE = "update_type";

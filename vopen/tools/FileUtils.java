@@ -69,6 +69,7 @@ public class FileUtils {
 		}
 	}
 	
+	@Deprecated
 	public static void writeCourseListToCache(Context c, String resultJson, String TAG){
 		FileOutputStream fout = null;
 		try {
@@ -83,6 +84,7 @@ public class FileUtils {
 		}
 	}
 	
+	@Deprecated
 	public static boolean isCourseListCacheExist(Context c){
 		File f = new File(c.getFilesDir(), CACHE_FILE_NAME);
 		return f.exists();

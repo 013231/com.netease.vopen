@@ -1,21 +1,22 @@
 package vopen.transactions;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import vopen.db.DBApi;
+import vopen.db.DBApi.DBCourseInfo;
 import vopen.protocol.VopenProtocol;
 import vopen.protocol.VopenServiceCode;
 import vopen.response.CourseInfo;
-import vopen.tools.FileUtils;
-import android.text.TextUtils;
 
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import com.netease.vopen.app.VopenApp;
+import com.netease.vopen.pal.Constants;
 import com.netease.vopen.pal.ErrorToString;
-
 import common.framework.http.HttpRequest;
 import common.framework.task.TransactionEngine;
 import common.pal.PalLog;
@@ -24,113 +25,182 @@ import common.util.NameValuePair;
 public class GetVideoListTransaction extends BaseTransaction {
 	private static final String TAG = "GetVideoListTransaction";
 
-	public static final int NOTIFY_STEP_BEGIN = 20;
-	public static final int NOTIFY_STEP_GET_DATA = 40;
-	public static final int NOTIFY_STEP_SAVE_DATA = 60;
-	public static final int NOTIFY_STEP_DATA_OK = 100;
-	public static final int NOTIFY_STEP_DATA_LOCAL = 99;
-
 	private long startTime;
-	private long endTime;
+	private String cacheFile;
 
-	public GetVideoListTransaction(TransactionEngine transMgr) {
+	public GetVideoListTransaction(TransactionEngine transMgr, String cacheFile) {
 		super(transMgr, TRANSACTION_TYPE_GET_VIDEO_LIST);
 		startTime = System.currentTimeMillis();
+		this.cacheFile = cacheFile;
 	}
 
 	@Override
 	public void onResponseSuccess(String response, NameValuePair[] pairs) {
 		PalLog.d(TAG, "返回数据成功");
-		notifyMessage(VopenServiceCode.TRANSACTION_SUCCESS,
-				createResult(NOTIFY_STEP_GET_DATA, null));// 更新进度
 		long requestEnd = System.currentTimeMillis();
 		PalLog.d(TAG, "数据返回共花费时间:" + (requestEnd - startTime));
-		List<CourseInfo> allDataList = parseResponse(response);
-		if (allDataList != null && allDataList.size() > 0) {
-			// 保存数据到缓存文件
-			long start2 = System.currentTimeMillis();
-			FileUtils.writeCourseListToCache(VopenApp.getAppInstance(),
-					response, TAG);
-			long end2 = System.currentTimeMillis();
-			PalLog.d(TAG, "保存数据到缓存文件所用时间：" + (end2 - start2));
-
-			notifyMessage(VopenServiceCode.TRANSACTION_SUCCESS,
-					createResult(NOTIFY_STEP_DATA_OK, allDataList));
-		} else {
+		JsonReader reader = null;
+		try {
+			reader = parseAndSaveData();
+			notifyMessage(VopenServiceCode.TRANSACTION_SUCCESS, null);
+		} catch (Exception e) {
+			PalLog.e(TAG, e.getMessage());
 			notifyResponseError(VopenServiceCode.ERR_DATA_PARSE,
 					ErrorToString.getString(VopenServiceCode.ERR_DATA_PARSE));
+		} finally {
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException e) {
+				}
+			}
 		}
-		endTime = System.currentTimeMillis();
-		PalLog.d(TAG, "总共花费的时间:" + (endTime - startTime));
-	}
-
-	@Override
-	public void onResponseError(int errCode, Object err) {
-		PalLog.d(TAG, "返回数据失败，尝试读取本地缓存");
-		String resultJson = FileUtils.readCourseListFromCache(
-				VopenApp.getAppInstance(), TAG);
-		if (TextUtils.isEmpty(resultJson)) {
-			PalLog.e(TAG, "本地缓存文件为空！");
-			notifyError(VopenServiceCode.GET_VIDEO_NO_DATA, null);
-			return;
-		}
-		List<CourseInfo> allDataList = parseResponse(resultJson);
-		if (allDataList != null && allDataList.size() > 0) {
-			notifyMessage(VopenServiceCode.TRANSACTION_SUCCESS,
-					createResult(NOTIFY_STEP_DATA_LOCAL, allDataList));
-		} else {
-			notifyError(VopenServiceCode.GET_VIDEO_NO_DATA, null);
-		}
+		long endTime = System.currentTimeMillis();
+		PalLog.d(TAG, "请求总共花费的时间:" + (endTime - startTime));
 	}
 
 	@Override
 	public void onTransact() {
 		if (!isCancel()) {
-			notifyMessage(VopenServiceCode.TRANSACTION_SUCCESS,
-					createResult(NOTIFY_STEP_BEGIN, null));// 更新进度
 			HttpRequest httpRequest = VopenProtocol.getInstance()
-					.createGetVListRequest();
+					.createGetVListRequest(cacheFile);
 			sendRequest(httpRequest);
 		} else {
 			getTransactionEngine().endTransaction(this);
 		}
 	}
 
-	private static List<CourseInfo> parseResponse(String resultJson) {
-		List<CourseInfo> allDataList = new ArrayList<CourseInfo>();
-		// 开始解析数据
+	/**
+	 * 解析并且保存数据
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	private JsonReader parseAndSaveData() throws Exception {
+		JsonReader reader;
+		List<DBCourseInfo> resultList = new ArrayList<DBCourseInfo>();
 		long start = System.currentTimeMillis();
-		try {
-			JSONArray courseArray = new JSONArray(resultJson);
-			int len = courseArray.length();
-			JSONObject obj = null;
-			for (int i = 0; i < len; i++) {
-				obj = courseArray.getJSONObject(i);
-				CourseInfo info = new CourseInfo(obj);
-				if (TextUtils.isEmpty(info.type))
-					continue;
-				allDataList.add(info);
+		File file = VopenApp.getAppInstance().getCacheListFilePath();
+		FileReader fReader = new FileReader(file);
+		reader = new JsonReader(fReader);
+		reader.beginArray();
+		DBApi.deleteAllCourse(VopenApp.getAppInstance());
+		while (reader.hasNext()) {
+//			PalLog.d(TAG, "读取一个课程信息");
+			DBCourseInfo info = parseCourse(reader);
+			if (info != null) {
+				resultList.add(info);
 			}
-			long end = System.currentTimeMillis();
-			PalLog.d(TAG, "解析数据所用时间：" + (end - start));
-		} catch (JSONException e) {
-			PalLog.e(TAG, "解析数据失败");
+			// 500条一批插入数据库
+			if (resultList.size() > 500) {
+//				PalLog.d(TAG, "批量插入数据");
+				DBApi.bulkInsertCourse(VopenApp.getAppInstance(), resultList);
+				resultList.clear();
+			}
 		}
-		return allDataList;
-	}
-	
-	public static List<CourseInfo> getCache(){
-		String resultJson = FileUtils.readCourseListFromCache(
-				VopenApp.getAppInstance(), TAG);
-		List<CourseInfo> allDataList = parseResponse(resultJson);
-		return allDataList;
+		if (resultList.size() > 0) {
+//			PalLog.d(TAG, "批量插入数据");
+			DBApi.bulkInsertCourse(VopenApp.getAppInstance(), resultList);
+		}
+		reader.endArray();
+		PalLog.d(TAG, "解析和保存数据所用时间：" + (System.currentTimeMillis() - start));
+		return reader;
 	}
 
-	private Object[] createResult(int step, List<CourseInfo> allInfo) {
-		Object[] obj = new Object[2];
-		obj[0] = step;
-		obj[1] = allInfo;
-		return obj;
+	/**
+	 * 解析一个课程的数据
+	 * 
+	 * @param reader
+	 * @return
+	 */
+	private DBCourseInfo parseCourse(JsonReader reader) {
+		DBCourseInfo dInfo = null;
+		try {
+			reader.beginObject();
+			CourseInfo cInfo = new CourseInfo();
+			while (reader.hasNext()) {
+				String name = reader.nextName();
+				if (name.equals("type")) {
+					cInfo.type = reader.nextString();
+				} else if (name.equals("ccPic")) {
+					cInfo.ccPic = reader.nextString();
+				} else if (name.equals("ccUrl")) {
+					cInfo.ccUrl = reader.nextString();
+				} else if (name.equals("description")) {
+					cInfo.description = reader.nextString();
+				} else if (name.equals("director")) {
+					cInfo.director = reader.nextString();
+				} else if (name.equals("hits")) {
+					cInfo.hits = reader.nextLong();
+				} else if (name.equals("include_virtual")) {
+					cInfo.include_virtual = reader.nextString();
+				} else if (name.equals("largeimgurl")) {
+					cInfo.largeimgurl = reader.nextString();
+				} else if (name.equals("ltime")) {
+					cInfo.ltime = reader.nextLong();
+				} else if (name.equals("playcount")) {
+					cInfo.playcount = reader.nextInt();
+				} else if (name.equals("plid")) {
+					cInfo.plid = reader.nextString();
+				} else if (name.equals("school")) {
+					cInfo.school = reader.nextString();
+				} else if (name.equals("source")) {
+					cInfo.source = reader.nextString();
+				} else if (name.equals("subtitle")) {
+					cInfo.subtitle = reader.nextString();
+				} else if (name.equals("tags")) {
+					cInfo.tags = reader.nextString();
+				} else if (name.equals("title")) {
+					cInfo.title = reader.nextString();
+				} else if (name.equals("type")) {
+					cInfo.type = reader.nextString();
+				} else if (name.equals("updated_playcount")) {
+					cInfo.updated_playcount = reader.nextInt();
+				} else if (name.equals("ipadPlayAdvInfo")) {
+					JsonToken peek = reader.peek();
+					if (peek == JsonToken.NULL) {
+						reader.skipValue();
+					} else {
+						reader.beginObject();
+						while (reader.hasNext()) {
+							String n = reader.nextName();
+							if (n.equals("advSource")) {
+								cInfo.adSource = reader.nextInt();
+							} else if (n.equals("advPreId")) {
+								cInfo.adPreCategory = reader.nextString();
+							} else if (n.equals("advMidId")) {
+								cInfo.adMidCategory = reader.nextString();
+							} else if (n.equals("advPosId")) {
+								cInfo.adPostCategory = reader.nextString();
+							} else {
+								reader.skipValue();
+							}
+						}
+						reader.endObject();
+					}
+				} else {
+					reader.skipValue();
+				}
+			}
+			reader.endObject();
+			if (Constants._TAG_head.equals(cInfo.type)
+					|| Constants._TAG_hot.equals(cInfo.type)
+					|| Constants._TAG_tuijian.equals(cInfo.type)) {
+				dInfo = null;
+			} else {
+				dInfo = new DBCourseInfo();
+				dInfo.mCourseId = cInfo.plid;
+				dInfo.mCourseName = cInfo.title;
+				dInfo.mCourseTag = cInfo.tags;
+				dInfo.mCourseSrc = cInfo.source;
+				dInfo.mCourseHitCount = cInfo.hits;
+				dInfo.mCourseUpdateTime = cInfo.ltime;
+				dInfo.mContent = cInfo.toJsonString();
+			}
+		} catch (Exception e) {
+			PalLog.e(TAG, e.getMessage());
+		}
+		return dInfo;
 	}
 
 }

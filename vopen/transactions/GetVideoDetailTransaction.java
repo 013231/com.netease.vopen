@@ -55,7 +55,7 @@ public class GetVideoDetailTransaction extends BaseTransaction {
 	@Override
 	public void onResponseError(int errCode, Object err) {
 		PalLog.d(TAG, "返回数据失败，尝试读取本地缓存");
-		CourseInfo course = DBUtils.getCourseByPlid(
+		CourseInfo course = DBUtils.getCourseDetailByPlid(
 				BaseApplication.getAppInstance(), mPlid);
 		if (course != null) {
 			if (Util.isStringEmpty(course.plid)) {

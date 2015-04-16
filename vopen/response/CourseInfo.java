@@ -25,7 +25,7 @@ public class CourseInfo implements Parcelable {
 	public String subtitle; // 剧集的英文标题
 	public String plid; // 节目ID
 	public String imgpath; // 图片地址
-	public String largeImg;	//大图片地址（横版图片）
+	public String largeimgurl;	//大图片地址（横版图片）
 	public String school; // 学校
 	public String director; // 导演
 	public int playcount; // 总集数
@@ -40,8 +40,9 @@ public class CourseInfo implements Parcelable {
 	public int mCurrentPosition = -1;// 当前课程播放位置
 	public String tags;// 2012.11新增,标识分类
 	public String source;// 2012.11新增,标识来源
-    public int 		mHitCount;
-    public long		mTimestamp;
+	//新增排序字段
+    public long	hits;
+    public long	ltime;
     /*2014-12 新增字段*/
     @Deprecated
     public int preAdvSource;
@@ -49,17 +50,19 @@ public class CourseInfo implements Parcelable {
     public int midAdvSource;
     @Deprecated
     public int postAdvSource;
+    
     /*2015-2-6新增*/
+    
     public int adSource;//0表示没有广告，1表示从dj那边取，10表示从广告sdk取
     public String adPreCategory;
     public String adMidCategory;
     public String adPostCategory;
+    
     public final static int AD_SOURCE_NONE = 0;
     public final static int AD_SOURCE_DJ = 1;
     public final static int AD_SOURCE_BJ = 10;
     
 	public CourseInfo() {
-
 	}
 
 	public CourseInfo(String str) {
@@ -80,24 +83,24 @@ public class CourseInfo implements Parcelable {
 		if (jso == null)
 			return;
 
-		title = BaseUtil.nullStr(jso.optString("title"));
-		subtitle = BaseUtil.nullStr(jso.optString("subtitle"));
-		plid = BaseUtil.nullStr(jso.optString("plid"));
-		imgpath = BaseUtil.nullStr(jso.optString("imgpath"));
-		largeImg = BaseUtil.nullStr(jso.optString("largeimgurl"));
-		school = BaseUtil.nullStr(jso.optString("school"));
-		director = BaseUtil.nullStr(jso.optString("director"));
+		title = jso.optString("title");
+		subtitle = jso.optString("subtitle");
+		plid = jso.optString("plid");
+		imgpath = jso.optString("imgpath");
+		largeimgurl = jso.optString("largeimgurl");
+		school = jso.optString("school");
+		director = jso.optString("director");
 		playcount = jso.optInt("playcount");
 		updated_playcount = jso.optInt("updated_playcount");
-		type = BaseUtil.nullStr(jso.optString("type"));
-		description = BaseUtil.nullStr(jso.optString("description"));
-		include_virtual = BaseUtil.nullStr(jso.optString("include_virtual"));
-		ccPic = BaseUtil.nullStr(jso.optString("ccPic"));
-		ccUrl = BaseUtil.nullStr(jso.optString("ccUrl"));
+		type = jso.optString("type");
+		description = jso.optString("description");
+		include_virtual = jso.optString("include_virtual");
+		ccPic = jso.optString("ccPic");
+		ccUrl = jso.optString("ccUrl");
 		tags = jso.optString("tags");
 		source = jso.optString("source");
-		mHitCount 		= jso.optInt("hits");
-		mTimestamp 		= jso.optLong("ltime");
+		hits 		= jso.optInt("hits");
+		ltime 		= jso.optLong("ltime");
 		preAdvSource = jso.optInt("preAdvSource");
 		midAdvSource = jso.optInt("midAdvSource");
 		postAdvSource = jso.optInt("postAdvSource");
@@ -121,7 +124,6 @@ public class CourseInfo implements Parcelable {
 		
 	}
 
-	@Deprecated
 	public JSONObject toJsonObject() {
 		try {
 			JSONObject json = new JSONObject();
@@ -129,7 +131,7 @@ public class CourseInfo implements Parcelable {
 			json.put("subtitle", subtitle);
 			json.put("plid", plid);
 			json.put("imgpath", imgpath);
-			json.put("largeimgurl", largeImg);
+			json.put("largeimgurl", largeimgurl);
 			json.put("school", school);
 			json.put("director", director);
 			json.put("playcount", playcount);
@@ -141,14 +143,22 @@ public class CourseInfo implements Parcelable {
 			json.put("ccUrl", ccUrl);
 			json.put("tags", tags);
 			json.put("source", source);
-			json.put("hits", mHitCount);
-			json.put("ltime", mTimestamp);
+			
+			json.put("hits", hits);
+			json.put("ltime", ltime);
+			
+			JSONObject adinfo = new JSONObject();
+			adinfo.put("advSource", adSource);
+			adinfo.put("advPreId", adPreCategory);
+			adinfo.put("advMidId", adMidCategory);
+			adinfo.put("advPosId", adPostCategory);
+			json.put("ipadPlayAdvInfo", adinfo);
+			
 			if (videoList != null) {
 				JSONArray jsonArray = new JSONArray();
 				for (int i = 0; i < videoList.size(); i++) {
 					jsonArray.put(videoList.get(i).toJsonObject());
 				}
-
 				json.put("videoList", jsonArray);
 			}
 
@@ -157,6 +167,11 @@ public class CourseInfo implements Parcelable {
 			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	public String toJsonString(){
+		JSONObject jobj = toJsonObject();
+		return jobj.toString();
 	}
 
 	@Override
@@ -171,7 +186,7 @@ public class CourseInfo implements Parcelable {
 		parcel.writeString(subtitle);
 		parcel.writeString(plid);
 		parcel.writeString(imgpath);
-		parcel.writeString(largeImg);
+		parcel.writeString(largeimgurl);
 		parcel.writeString(school);
 		parcel.writeString(director);
 		parcel.writeInt(playcount);
@@ -186,8 +201,8 @@ public class CourseInfo implements Parcelable {
 		parcel.writeInt(mCurrentPosition);
 		parcel.writeString(source);
 		parcel.writeString(tags);
-        parcel.writeInt(mHitCount);
-        parcel.writeLong(mTimestamp);
+        parcel.writeLong(hits);
+        parcel.writeLong(ltime);
 	}
 
 	public void readFromParcel(Parcel parcel) {
@@ -196,7 +211,7 @@ public class CourseInfo implements Parcelable {
 		subtitle = parcel.readString();
 		plid = parcel.readString();
 		imgpath = parcel.readString();
-		largeImg = parcel.readString();
+		largeimgurl = parcel.readString();
 		school = parcel.readString();
 		director = parcel.readString();
 		playcount = parcel.readInt();
@@ -212,8 +227,8 @@ public class CourseInfo implements Parcelable {
 		mCurrentPosition = parcel.readInt();
 		source = parcel.readString();
 		tags = parcel.readString();
-		mHitCount = parcel.readInt();
-    	mTimestamp = parcel.readLong();
+		hits = parcel.readInt();
+    	ltime = parcel.readLong();
 	}
 
 	public static final Parcelable.Creator<CourseInfo> CREATOR = new Creator<CourseInfo>() {

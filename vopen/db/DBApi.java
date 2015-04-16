@@ -7,6 +7,8 @@ package vopen.db;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONObject;
+
 import vopen.db.VopenContentProvider.DownloadManagerHelper;
 import vopen.db.VopenContentProvider.UserAccountHelper;
 import vopen.db.VopenContentProvider.VopenAllDataJsonHelper;
@@ -25,6 +27,8 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.netease.vopen.pal.Constants;
+
+import common.util.BaseUtil;
 import common.util.StringUtil;
 import common.util.Util;
 
@@ -36,30 +40,40 @@ public class DBApi {
 	 * table name :TABLE_All_DTTA = "t_vopen_all_data"
 	 *************************************************************/
 	//该表数据字段
-	public static class CourseInfo{
-		public String mType;
-		public String mContent;
+	public static class DBCourseInfo{
+		
+		public String mCourseId;
+		public String mCourseName;
+		public String mCourseTag;
+		public String mCourseSrc;
+		public long mCourseHitCount;
+		public long mCourseUpdateTime;
+		public String mContent;//json字符串
+		public String mType;//遗留字段
+		
 	}
-	/**公开课课程类型*/
-    public static class CourseType {
-    	public static final String DATA_TYPE_ALL = Constants.DATA_TYPE_ALL;
-    	public static final String DATA_TYPE_TOUTU = Constants.DATA_TYPE_TOUTU;
-    	public static final String DATA_TYPE_ENJOY = Constants.DATA_TYPE_ENJOY;
-    	public static final String DATA_TYPE_XINLI = Constants.DATA_TYPE_XINLI;
-    	public static final String DATA_TYPE_SHULI = Constants.DATA_TYPE_SHULI;
-    	public static final String DATA_TYPE_ZHEXUE = Constants.DATA_TYPE_ZHEXUE;
-    	public static final String DATA_TYPE_RENWEN = Constants.DATA_TYPE_RENWEN;
-    	public static final String DATA_TYPE_JINGJI = Constants.DATA_TYPE_JINGJI;
-    	public static final String DATA_TYPE_TED = Constants.DATA_TYPE_TED;
-    	public static final String DATA_TYPE_QITA = Constants.DATA_TYPE_QITA;
-    }
+	
+//	/**公开课课程类型*/
+//    public static class CourseType {
+//    	public static final String DATA_TYPE_ALL = Constants.DATA_TYPE_ALL;
+//    	public static final String DATA_TYPE_TOUTU = Constants.DATA_TYPE_TOUTU;
+//    	public static final String DATA_TYPE_ENJOY = Constants.DATA_TYPE_ENJOY;
+//    	public static final String DATA_TYPE_XINLI = Constants.DATA_TYPE_XINLI;
+//    	public static final String DATA_TYPE_SHULI = Constants.DATA_TYPE_SHULI;
+//    	public static final String DATA_TYPE_ZHEXUE = Constants.DATA_TYPE_ZHEXUE;
+//    	public static final String DATA_TYPE_RENWEN = Constants.DATA_TYPE_RENWEN;
+//    	public static final String DATA_TYPE_JINGJI = Constants.DATA_TYPE_JINGJI;
+//    	public static final String DATA_TYPE_TED = Constants.DATA_TYPE_TED;
+//    	public static final String DATA_TYPE_QITA = Constants.DATA_TYPE_QITA;
+//    }
 	/**
 	 * 向公开课所有数据表中插入一项
 	 * @param context
-	 * @param CourseInfo mType的定义见CourseType类中的课程类型定义
+	 * @param DBCourseInfo mType的定义见CourseType类中的课程类型定义
 	 * @return 
+	 * @deprecated
 	 */
-	public static Uri insertCourse(Context context,CourseInfo course) {
+	public static Uri insertCourse(Context context,DBCourseInfo course) {
 		if(null == course) {
 			return null;
 		}
@@ -75,10 +89,11 @@ public class DBApi {
 	/**
 	 * 更新公开课所有数据表中某一课程类型所对应的课程数据
 	 * @param context
-	 * @param CourseInfo mType的定义见CourseType类中的课程类型定义
+	 * @param DBCourseInfo mType的定义见CourseType类中的课程类型定义
 	 * @return 
+	 * @deprecated
 	 */
-	public static int updateCourse (Context context,CourseInfo course) {
+	public static int updateCourse (Context context,DBCourseInfo course) {
 		if(null == course) {
 			return DB_OPERATION_FAILED;
 		}
@@ -89,46 +104,75 @@ public class DBApi {
 		String[] selectionArgs = new String[] {course.mType};		
 		return context.getContentResolver().update(VopenAllDataJsonHelper.getUri(), values,selection, selectionArgs);
 	}
+	
 	/**
-	 * 查询公开课所有数据表中的项
+	 * 批量插入课程信息，这个方法在用户刷新课程列表时被调用。
 	 * @param context
-	 * @param selection
-	 * @param projection
-	 * @param selectionArgs
-	 * @return Cursor
+	 * @param courseList
+	 * @return
 	 */
-	public static Cursor queryCourse(Context context, String selection,String[] selectionArgs,String[] projection){
-		Cursor c = context.getContentResolver().query(VopenAllDataJsonHelper.getUri(),
-													  projection,
-													  selection,
-													  selectionArgs,
-													  null);
-		return c;
+	public static int bulkInsertCourse(Context context, List<DBCourseInfo> courseList){
+		if (courseList == null || courseList.size() == 0){
+			return 0;
+		}
+		ContentValues[] initialValueList = new ContentValues[courseList.size()];
+		for (int i = 0; i < courseList.size(); i++) {
+			DBCourseInfo info = courseList.get(i);
+			ContentValues initialValues = new ContentValues();
+			initialValues.put(VopenAllDataJsonHelper.COURSE_ID, info.mCourseId);
+			if (info.mCourseName != null){
+				initialValues.put(VopenAllDataJsonHelper.COURSE_NAME, info.mCourseName);
+			}
+			if (info.mCourseSrc != null){
+				initialValues.put(VopenAllDataJsonHelper.COURSE_SOURCE, info.mCourseSrc);
+			}
+			if (info.mCourseTag != null){
+				initialValues.put(VopenAllDataJsonHelper.COURSE_TAG, info.mCourseTag);
+			}
+			initialValues.put(VopenAllDataJsonHelper.COURSE_HIT_COUNT, info.mCourseHitCount);
+			initialValues.put(VopenAllDataJsonHelper.COURSE_UPDATE_TIME, info.mCourseUpdateTime);
+			if (info.mContent != null){
+				initialValues.put(VopenAllDataJsonHelper.COURSE_CONTENT, info.mContent);
+			}
+			initialValueList[i] = initialValues;
+		}
+		return context.getContentResolver().bulkInsert(VopenAllDataJsonHelper.getUri(), initialValueList);
 	}
+	
 	/**
-	 * 根据课程类型查询课程数据
+	 * 查询所有的课程数据
 	 * @param context
 	 * @param type type的定义见CourseType类中的课程类型定义
 	 * @return Cursor
 	 */
-	public static Cursor queryCourseByType(Context context, String type,String[] projection){
-		if( null == type) {
-			return null;
-		}
-		String selection = VopenAllDataJsonHelper.COURSE_TYPE + "=?";
-		String[] selectionArgs = new String[] {type};	
+	public static Cursor queryAllCourse(Context context, String[] projection){
 		Cursor c = context.getContentResolver().query(VopenAllDataJsonHelper.getUri(),
 													  projection,
-													  selection,
-													  selectionArgs,
+													  null,
+													  null,
 													  null);
 		return c;
 	}
+	
+	/**
+	 * 查询全部课程列表中的信息
+	 * @param context
+	 * @return
+	 */
+	public static Cursor queryCourse(Context context, String[] projection,
+			String selection, String[] selectionArgs, String sortOrder) {
+		Cursor c = context.getContentResolver().query(
+				VopenAllDataJsonHelper.getUri(), projection, selection,
+				selectionArgs, sortOrder);
+		return c;
+	}
+	
 	/**
 	 * 根据课程类型删除课程数据
 	 * @param context
 	 * @param type type的定义见CourseType类中的课程类型定义
 	 * @return
+	 * @deprecated
 	 */
 	public static int deleteCourseByType(Context context, String type){
 		if(null == type) {
@@ -140,15 +184,17 @@ public class DBApi {
 													  selection,
 													  selectionArgs);
 	}
+	
 	/**
 	 * 删除所有课程数据
 	 * @param context
-	 * @param type type的定义见CourseType类中的课程类型定义
 	 * @return 
 	 */
 	public static int deleteAllCourse(Context context){
 		return context.getContentResolver().delete(VopenAllDataJsonHelper.getUri(),null,null);
 	}
+	
+	
 	/***
 	 * 所有课程数据表， 删除原来数据，保存新数据,批量操作方式
 	 * @param db
@@ -156,7 +202,7 @@ public class DBApi {
 	 * @return
 	 * @deprecated
 	 */
-	public static boolean saveNewAllCourse(Context context, ArrayList<CourseInfo> data) {
+	public static boolean saveNewAllCourse(Context context, ArrayList<DBCourseInfo> data) {
 		if (data == null ) {
 			return false;
 		}
@@ -165,7 +211,7 @@ public class DBApi {
 		SQLiteDatabase db = databaseHelper.getWritableDatabase();
         try {
 			db.beginTransaction();
-			CourseInfo course = null;
+			DBCourseInfo course = null;
 			for(int i=0; i< data.size(); i++ ) {
 				course = data.get(i);
 				if (course == null) {
@@ -188,6 +234,8 @@ public class DBApi {
 
 
 	}
+	
+	@Deprecated
 	private static boolean insertCourseStatement(SQLiteDatabase db, String courseJson, String type) {
 		if (db == null || courseJson == null || type == null) {
 			return false;
@@ -392,8 +440,9 @@ public class DBApi {
 			if (null == collectInfos || collectInfos.size() == 0) {
 				return;
 			}
-			List<ContentValues> initialValueList = new ArrayList<ContentValues>();
-			for (CollectInfo collectInfo : collectInfos) {
+			ContentValues[] initialValueList = new ContentValues[collectInfos.size()];
+			for (int i = 0; i < collectInfos.size(); i++) {
+				CollectInfo collectInfo = collectInfos.get(i);
 				ContentValues initialValues = new ContentValues();
 				if (null != collectInfo.mCourse_id) {
 					initialValues.put(VopenMyCollectHelper.COURSE_PLID,
@@ -423,10 +472,10 @@ public class DBApi {
 					initialValues.put(VopenMyCollectHelper.DATA_TIME,
 							collectInfo.mData_time);
 				}
-				initialValueList.add(initialValues);
+				initialValueList[i] = initialValues;
 			}
 			context.getContentResolver().bulkInsert(VopenMyCollectHelper.getUri(),
-					initialValueList.toArray(new ContentValues[0]));
+					initialValueList);
 		}
 
 		
