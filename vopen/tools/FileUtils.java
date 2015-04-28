@@ -194,18 +194,18 @@ public class FileUtils {
 
 	}
 
-	public static boolean createFolder(String filepath) {
-
-		File file = new File(filepath);
-
-		if ((isSDCardMounted() || isSDCardMountedReadOnly()) && file.exists()) {
+	/**递归地创建文件夹*/
+	public static boolean createFolder(File file) {
+		if (file.exists()) {
 			return true;
 		} else {
-			if (isSDCardMounted()) {
-				return file.mkdirs();
-			} else
+			File p = file.getParentFile();
+			if (createFolder(p)){
+				file.mkdir();
+				return true;
+			}else{
 				return false;
-
+			}
 		}
 	}
 
@@ -222,60 +222,62 @@ public class FileUtils {
 
 	}
 
-	public static void writeDatatoFile(String rst) {
-		if (isSDCardMounted()) {
+//	@Deprecated
+//	public static void writeDatatoFile(String rst) {
+//		if (isSDCardMounted()) {
+//
+//			String realfilename = datafilepath + datafilename;
+//
+//			if (createFolder(datafilepath)) {
+//
+//				if (isFileExit(realfilename)) {
+//					delFile(realfilename);
+//				}
+//
+//				try {
+//
+//					BufferedWriter output = new BufferedWriter(new FileWriter(
+//							realfilename));
+//					output.write(rst);
+//					output.close();
+//
+//					Log.i("FileUtils", "write data to file ");
+//				} catch (Exception e) {
+//
+//				}
+//
+//			}
+//
+//		}
+//	}
 
-			String realfilename = datafilepath + datafilename;
-
-			if (createFolder(datafilepath)) {
-
-				if (isFileExit(realfilename)) {
-					delFile(realfilename);
-				}
-
-				try {
-
-					BufferedWriter output = new BufferedWriter(new FileWriter(
-							realfilename));
-					output.write(rst);
-					output.close();
-
-					Log.i("FileUtils", "write data to file ");
-				} catch (Exception e) {
-
-				}
-
-			}
-
-		}
-	}
-
-	public static void writeVDetailtoFile(String rst, String plid) {
-		if (isSDCardMounted()) {
-
-			String realfilename = datafilepath + plid;
-
-			if (createFolder(datafilepath)) {
-
-				if (isFileExit(realfilename)) {
-					delFile(realfilename);
-				}
-
-				try {
-
-					BufferedWriter output = new BufferedWriter(new FileWriter(
-							realfilename));
-					output.write(rst);
-					output.close();
-
-				} catch (Exception e) {
-
-				}
-
-			}
-
-		}
-	}
+//	@Deprecated
+//	public static void writeVDetailtoFile(String rst, String plid) {
+//		if (isSDCardMounted()) {
+//
+//			String realfilename = datafilepath + plid;
+//
+//			if (createFolder(datafilepath)) {
+//
+//				if (isFileExit(realfilename)) {
+//					delFile(realfilename);
+//				}
+//
+//				try {
+//
+//					BufferedWriter output = new BufferedWriter(new FileWriter(
+//							realfilename));
+//					output.write(rst);
+//					output.close();
+//
+//				} catch (Exception e) {
+//
+//				}
+//
+//			}
+//
+//		}
+//	}
 
 	public static String readDatatoFile(String filepath, String filename) {
 
