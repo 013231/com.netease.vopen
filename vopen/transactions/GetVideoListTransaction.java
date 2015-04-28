@@ -134,6 +134,8 @@ public class GetVideoListTransaction extends BaseTransaction {
 					cInfo.hits = reader.nextLong();
 				} else if (name.equals("include_virtual")) {
 					cInfo.include_virtual = reader.nextString();
+				}else if (name.equals("imgpath")){
+					cInfo.imgpath = reader.nextString();
 				} else if (name.equals("largeimgurl")) {
 					cInfo.largeimgurl = reader.nextString();
 				} else if (name.equals("ltime")) {

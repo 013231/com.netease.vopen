@@ -171,7 +171,10 @@ public class CourseInfo implements Parcelable {
 	
 	public String toJsonString(){
 		JSONObject jobj = toJsonObject();
-		return jobj.toString();
+		if (jobj != null){
+			return jobj.toString();
+		}
+		return "";
 	}
 
 	@Override
