@@ -161,7 +161,8 @@ public class DBUtils {
 		if (selectionArgsList.size() > 0){
 			selectionArgs = selectionArgsList.toArray(new String[0]);
 		}
-		return DBApi.queryCourse(context, projection, selection, selectionArgs, null);
+		String sortOrder = VopenAllDataJsonHelper.COURSE_HIT_COUNT + " DESC";
+		return DBApi.queryCourse(context, projection, selection, selectionArgs, sortOrder);
 	}
 	
 	/**
