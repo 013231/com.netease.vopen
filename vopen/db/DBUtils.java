@@ -130,21 +130,25 @@ public class DBUtils {
 		String source = info.source;
 		StringBuilder selectionBuilder = new StringBuilder();
 		List<String> selectionArgsList = new ArrayList<String>();
+		//不包括自己
+		selectionBuilder.append(VopenAllDataJsonHelper.COURSE_ID + "<> ?");
+		selectionArgsList.add(info.plid);
+		//source相同
 		if (source != null) {
+			selectionBuilder.append(" AND ");
 			selectionBuilder.append( VopenAllDataJsonHelper.COURSE_SOURCE + " = ?");
 			selectionArgsList.add(source);
 		}
+		//有相同的tag
 		String tags = info.tags;
 		if (!TextUtils.isEmpty(tags)){
+			selectionBuilder.append(" AND ");
 			String[] tagTokens = tags.split(",");
-			if (selectionBuilder != null){
-				selectionBuilder.append(" AND ");
-			}
 			selectionBuilder.append("(");
 			for (int i = 0; i < tagTokens.length; i++){
 				String tag = tagTokens[i];
 				selectionBuilder.append(VopenAllDataJsonHelper.COURSE_TAG + " LIKE ? " + " OR ");
-				selectionArgsList.add(tag);
+				selectionArgsList.add("%"+tag+"%");
 			}
 			selectionBuilder.setLength(selectionBuilder.length() - 4);
 			selectionBuilder.append(")");
