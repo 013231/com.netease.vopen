@@ -34,7 +34,7 @@ public class VopenProtocol {
 	// 推送是否测试版本
 	public static boolean TEST_PUSH = false;
 
-	public static boolean TEST_AD = false;
+	public static boolean TEST_AD = true;
 
 	// 服务器域名
 	// private String SERVER_DOMAIN = "http://so.v.163.com";//原北京

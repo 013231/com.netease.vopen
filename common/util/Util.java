@@ -17,13 +17,14 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.graphics.Point;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.StatFs;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.WindowManager;
-
 import common.pal.IHttp;
 import common.pal.PalLog;
 import common.pal.PalPlatform;
@@ -577,6 +578,30 @@ public class Util {
 		return (widthStr + "x" + heightStr);
     	
     }
+    
+    /*
+     * 获取屏幕宽度像素
+     */
+    public static int getScreenWidthPixel(Context context) {
+    	WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+    	Display display = wm.getDefaultDisplay();
+    	Point size = new Point();
+    	display.getSize(size);
+    	return size.x;
+    	
+	}
+    
+    /*
+     * 获取屏幕高度像素
+     */
+    public static int getScreenHeightPixel(Context context) {
+    	WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+    	Display display = wm.getDefaultDisplay();
+    	Point size = new Point();
+    	display.getSize(size);
+    	return size.y;
+	}
+    
     /**
      * 获取反馈标题
      * 
