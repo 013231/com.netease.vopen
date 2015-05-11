@@ -582,24 +582,17 @@ public class Util {
     /*
      * 获取屏幕宽度像素
      */
-    public static int getScreenWidthPixel(Context context) {
+    public static int getScreenWidth(Context context) {
     	WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-    	Display display = wm.getDefaultDisplay();
-    	Point size = new Point();
-    	display.getSize(size);
-    	return size.x;
-    	
+    	return wm.getDefaultDisplay().getWidth();
 	}
     
     /*
      * 获取屏幕高度像素
      */
-    public static int getScreenHeightPixel(Context context) {
+    public static int getScreenHeight(Context context) {
     	WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-    	Display display = wm.getDefaultDisplay();
-    	Point size = new Point();
-    	display.getSize(size);
-    	return size.y;
+    	return wm.getDefaultDisplay().getHeight();
 	}
     
     /**
